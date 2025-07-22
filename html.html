@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gap Analysis Agent</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.5/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+        const { jsPDF } = window.jspdf;
+
+        function App() {
+            const [clientTex, setClientTex] = useState(null);
+            const [companyTex, setCompanyTex] = useState(null);
+            const [employeeCsv, setEmployeeCsv] = useState(null);
+            const [clientContent, setClientContent] = useState('');
+            const [companyContent, setCompanyContent] = useState('');
+            const [employeePreview, setEmployeePreview] = useState('');
+            const [report, setReport] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            // Handle file uploads
+            const handleFileUpload = (event, setFile, setContent, isCsv = false) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                setFile(file);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    if (isCsv) {
+                        // Parse CSV for preview (first 10 rows)
+                        const rows = text.split('\n').slice(0, 11); // Include header + 10 rows
+                        setContent(rows.join('\n'));
+                    } else {
+                        setContent(text);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            // Simulate AI gap analysis (replace with actual API call if available)
+            const runGapAnalysis = async () => {
+                if (!clientTex || !companyTex || !employeeCsv) {
+                    setError('Please upload all three files before running the analysis.');
+                    return;
+                }
+                setError('');
+                setIsLoading(true);
+                // Mock AI response
+                setTimeout(() => {
+                    const mockReport = `
+# Gap Analysis Report
+
+- **✅ Fully Covered Requirements:**
+  - Client requirement 1: Covered by company resource X.
+  - Client requirement 2: Covered by company resource Y.
+
+- **❌ Identified Gaps:**
+  - Client requirement 3: No matching company resource.
+  - Client requirement 4: Partial coverage by resource Z.
+
+- **💡 Suggested Employees:**
+  - Employee A (ID: 001): Skills match requirement 3.
+  - Employee B (ID: 002): Can be trained for requirement 4.
+
+- **📌 Recommendations:**
+  - Acquire new resource to cover requirement 3.
+  - Train staff on requirement 4 to close gap.
+                    `;
+                    setReport(mockReport);
+                    setIsLoading(false);
+                }, 2000); // Simulate API delay
+            };
+
+            // Generate PDF using jsPDF
+            const generatePDF = () => {
+                const doc = new jsPDF();
+                doc.setFontSize(18);
+                doc.text('Gap Analysis Report', 10, 10);
+                doc.setFontSize(12);
+                const splitText = doc.splitTextToSize(report, 190);
+                doc.text(splitText, 10, 20);
+                doc.save('gap_analysis_report.pdf');
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto p-6">
+                    <h1 className="text-3xl font-bold text-center mb-4">📊 Gap Analysis Agent</h1>
+                    <p className="text-center mb-6">Upload the three required files to generate a full gap analysis report.</p>
+
+                    {/* File Uploads */}
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">📄 Client Requirements (.tex)</label>
+                            <input
+                                type="file"
+                                accept=".tex"
+                                onChange={(e) => handleFileUpload(e, setClientTex, setClientContent)}
+                                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            {clientContent && (
+                                <pre className="mt-2 p-2 bg-gray-100 rounded-md text-sm overflow-auto max-h-40">{clientContent}</pre>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">📄 Company Resources (.tex)</label>
+                            <input
+                                type="file"
+                                accept=".tex"
+                                onChange={(e) => handleFileUpload(e, setCompanyTex, setCompanyContent)}
+                                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            {companyContent && (
+                                <pre className="mt-2 p-2 bg-gray-100 rounded-md text-sm overflow-auto max-h-40">{companyContent}</pre>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">📋 Employee Dataset (.csv)</label>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                onChange={(e) => handleFileUpload(e, setEmployeeCsv, setEmployeePreview, true)}
+                                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            {employeePreview && (
+                                <pre className="mt-2 p-2 bg-gray-100 rounded-md text-sm overflow-auto max-h-40">{employeePreview}</pre>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Run Button */}
+                    <button
+                        onClick={runGapAnalysis}
+                        disabled={isLoading}
+                        className={`mt-6 w-full py-2 px-4 rounded-md text-white font-semibold ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                    >
+                        {isLoading ? 'Analyzing...' : '🔍 Run Gap Analysis'}
+                    </button>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* Report Output */}
+                    {report && (
+                        <div className="mt-6">
+                            <h2 className="text-xl font-semibold">📄 Generated Report</h2>
+                            <pre className="mt-2 p-4 bg-gray-100 rounded-md overflow-auto max-h-96">{report}</pre>
+                            <button
+                                onClick={generatePDF}
+                                className="mt-4 w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+                            >
+                                📥 Download Report as PDF
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
