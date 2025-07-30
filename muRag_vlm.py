@@ -114,6 +114,11 @@ except Exception as e:
 last_answer = None
 last_retrieved_docs = None
 
+# Variables globales simples pour le dernier score et raison (pour promptEnhancer.py)
+last_evaluation_score = None
+last_evaluation_reason = None
+last_analysis_prompt = None  # Stocker le prompt utilisé pour l'analyse complète
+
 # Configuration du Judge Pipeline Gemini
 GOOGLE_API_KEY = "AIzaSyCEtBwwTcJitPxX6Vum92Bz6q5-Ga86hU4"
 judge_llm = None
@@ -187,6 +192,11 @@ def assess_faithfulness(question, answer, retrieved_docs, threshold=0.7):
         
         # Mesurer la fidélité
         faith_metric.measure(tc)
+        
+        # Stocker dans les variables globales simples
+        global last_evaluation_score, last_evaluation_reason
+        last_evaluation_score = faith_metric.score
+        last_evaluation_reason = faith_metric.reason
         
         return {
             "score": faith_metric.score,
@@ -278,8 +288,6 @@ def print_judge_result(result):
             print("❌ Erreur dans l'évaluation")
     else:
         print(f"ℹ️  Statut: {eval_data['reason']}")
-    
-    print("="*60)
 
 # ===============================================================================
 # FONCTIONS DE DÉTECTION ET ANALYSE DES PDFs
@@ -1797,7 +1805,7 @@ def main():
     Point d'entrée principal du système d'analyse RFP.
     """
     # ===== DÉCLARATIONS GLOBALES =====
-    global last_retrieved_docs
+    global last_retrieved_docs, last_evaluation_score, last_evaluation_reason, last_analysis_prompt
     
     # ===== PHASE 1: CONFIGURATION SÉCURISÉE ET VALIDATION =====
     faiss_path = "./faiss_index"  
@@ -1870,653 +1878,121 @@ def main():
             print("💡 Solution: Supprimez ./faiss_index pour recréation")
             return
 
-    # ===== PHASE 4: INTERFACE UTILISATEUR MÉTIER AVANCÉE =====
+    # ===== PHASE 4: INTERFACE UTILISATEUR SIMPLIFIÉE =====
     print("\n" + "="*80)
-    print("🧠 SYSTÈME D'ANALYSE RFP - INTELLIGENCE CONCURRENTIELLE ACTIVÉE")
-    print("🎯 Optimisez vos futurs appels d'offres grâce à l'IA stratégique")
+    print("🧠 SYSTÈME D'ANALYSE RFP SIMPLIFIÉ")
+    print("🎯 Tapez simplement votre domaine d'analyse")
     print("="*80)
     
-    print("\n🎯 ANALYSE STRATÉGIQUE COMPLÈTE AUTOMATIQUE:")
-    print("  ⚡ Tapez simplement '[domaine]' → Analyse automatique complète")
+    print("\n✨ INTERFACE SIMPLIFIÉE:")
+    print("  ⚡ Tapez simplement un domaine → Analyse automatique complète")
     print("     📊 Exemples: 'sécurité', 'cloud', 'agile', 'architecture', 'ia'")
-    print("     🤖 Exécute automatiquement TOUTES les analyses suivantes:")
-    print("        • 📈 Patterns récurrents dans les RFP")
-    print("        • 🧠 Patterns stratégiques avec IA") 
-    print("        • 💚 Historique des succès (approved)")
-    print("        • 🔴 Historique des échecs (rejected)")
-    print("        • ⚖️ Comparaison succès vs échec")
-    print("        • 🚀 Analyse stratégique executive")
-    print("        • 🔄 Comparaison RFP vs réponses")
-    print("        • 🔍 Intelligence concurrentielle")
+    print("     🤖 Le système fait automatiquement toute l'analyse pour vous!")
     
-    print("\n📋 ANALYSES STRATÉGIQUES SPÉCIALISÉES:")
-    print("  📈 'patterns: [catégorie]' → Identification tendances récurrentes")
+    print("\n⚙️ COMMANDES SPÉCIALES:")
+    print("  � 'registry' → Voir documents indexés")
+    print("  ❓ 'help' → Aide")
+    print("  � 'quit' → Quitter")
     print("  ⚖️ 'compare: [sujet]' → Comparaison facteurs succès vs échec")
     print("  📚 'lessons: [domaine]' → Extraction enseignements historiques")
     print("  🎯 'requirements: [type]' → Cartographie exigences récurrentes")
     print("  🚀 'strategy: [question métier]' → Analyse complète executive")
     
-    print("\n🤖 NOUVELLES ANALYSES LLM INTELLIGENTES:")
-    print("  🧠 'smart_patterns: [catégorie]' → Patterns stratégiques avec IA")
-    print("  🔍 'competitive: [focus]' → Intelligence concurrentielle avancée")
     
-    print("\n🎯 ANALYSE STRATÉGIQUE COMPLÈTE AUTOMATISÉE:")
-    print("  🚀 'analyze_complete: [domaine]' → Framework complet en 4 étapes")
+    print(f"\n📊 ÉTAT SYSTÈME: {len(document_registry)} docs indexés")
+    print("🎮 Prêt pour analyse...")
     
-    print("\n🆕 NOUVELLES ANALYSES RFP ↔ RÉPONSES:")
-    print("  🔄 'rfp_vs_response: [sujet]' → Comparaison demandes clients vs nos propositions")
-    print("  📋 'rfp_patterns: [type]' → Patterns récurrents dans les demandes clients")
-    print("  📝 'response_patterns: [type]' → Patterns récurrents dans nos réponses")
-    
-    print("\n⚙️ UTILITAIRES SYSTÈME:")
-    print("  📑 'registry' → Visualisation registre documents indexés")
-    print("  🔗 'mapping' → Affichage correspondances RFP ↔ Réponse")
-    print("  ❓ 'help' → Réaffichage guide utilisation complet")
-    print("  🚪 'quit' → Fermeture session avec sauvegarde état")
-    
-    print(f"\n📊 ÉTAT SYSTÈME: {len(document_registry)} docs indexés, {len(rfp_response_mapping)} projets mappés")
-    print("🎮 Prêt pour analyse stratégique RFP...")
-    
-    # ===== PHASE 5: BOUCLE INTERACTION CONTINUE AVEC GESTION AVANCÉE =====
-    # Boucle interactive avec traitement intelligent des commandes métier
+    # ===== PHASE 5: BOUCLE INTERACTION SIMPLIFIÉE =====
     while True:
         try:
             # ===== COLLECTE INPUT UTILISATEUR =====
-            query = input("\n" + "="*60 + "\n🔎 Quelle analyse RFP souhaitez-vous effectuer ? ").strip()
+            query = input("\n" + "="*50 + "\n🔎 Entrez votre domaine d'analyse: ").strip()
             
             # ===== GESTION COMMANDES DE CONTRÔLE =====
             if query.lower() in ["quit", "exit", "q"]:
-                print("\n👋 Session d'analyse RFP terminée avec succès!")
-                print("💾 Tous les insights générés sont prêts pour utilisation métier.")
+                print("\n👋 Session terminée!")
                 break
                 
             if not query:
-                print("💬 Veuillez saisir une question ou commande...")
+                print("💬 Veuillez saisir un domaine...")
                 continue
         
             # ===== COMMANDES UTILITAIRES SYSTÈME =====
             
             # Affichage registre documentaire
             if query.lower() == "registry":
-                print("\n📑 REGISTRE DOCUMENTAIRE COMPLET:")
+                print("\n📑 REGISTRE DOCUMENTAIRE:")
                 print("-" * 50)
                 display_document_registry()
                 print(f"\n📊 Résumé: {len(document_registry)} documents indexés")
                 continue
                 
-            # Affichage mapping RFP-Réponse
-            if query.lower() == "mapping":
-                print("\n🔗 CORRESPONDANCES RFP ↔ RÉPONSE:")
-                print("-" * 50)
-                display_rfp_response_mapping()
-                print(f"\n📊 Résumé: {len(rfp_response_mapping)} projets mappés")
-                continue
-                
-            # Réaffichage aide complète
+            # Réaffichage aide simplifiée
             if query.lower() == "help":
-                print("\n" + "="*80)
-                print("🧠 GUIDE COMPLET D'UTILISATION - SYSTÈME RAG STRATÉGIQUE")
-                print("="*80)
-                print("\n📋 RECHERCHE CIBLÉE PAR STATUT:")
-                print("  💚 'approved: [question]' → Analyse uniquement RFP gagnés")
-                print("  🔴 'rejected: [question]' → Analyse uniquement RFP perdus") 
-                print("  🔍 [question normale] → Recherche exhaustive tous documents")
-                print("\n🔍 ANALYSES STRATÉGIQUES SPÉCIALISÉES:")
-                print("  📈 'patterns: [catégorie]' → Tendances récurrentes")
-                print("  ⚖️ 'compare: [sujet]' → Facteurs succès vs échec")
-                print("  📚 'lessons: [domaine]' → Enseignements historiques")
-                print("  🎯 'requirements: [type]' → Exigences récurrentes")
-                print("  🚀 'strategy: [question métier]' → Analyse executive complète")
-                print("\n🎯 ANALYSE STRATÉGIQUE COMPLÈTE:")
-                print("  🚀 'analyze_complete: [domaine]' → Framework complet automatisé (4 étapes)")
-                print("\n🆕 ANALYSES RFP ↔ RÉPONSES:")
-                print("  🔄 'rfp_vs_response: [sujet]' → Demandes clients vs nos propositions")
-                print("  📋 'rfp_patterns: [type]' → Patterns dans demandes clients")
-                print("  📝 'response_patterns: [type]' → Patterns dans nos réponses")
-                print("\n⚙️ UTILITAIRES:")
+                print("\n" + "="*50)
+                print("🧠 AIDE - SYSTÈME RAG SIMPLIFIÉ")
+                print("="*50)
+                print("\n✨ UTILISATION:")
+                print("  🔍 Tapez simplement un domaine (ex: 'sécurité', 'cloud', 'agile')")
+                print("  📊 Le système fait automatiquement l'analyse complète")
+                print("\n⚙️ COMMANDES:")
                 print("  📑 'registry' → Voir documents indexés")
-                print("  🔗 'mapping' → Voir correspondances RFP-Réponse")
-                print("  ❓ 'help' → Ce guide")
+                print("  ❓ 'help' → Cette aide")
                 print("  🚪 'quit' → Quitter")
                 continue
-
-            # ===== ANALYSE ET ROUTAGE DES COMMANDES STRATÉGIQUES =====
+                
+            # ===== INTERFACE SIMPLIFIÉE : JUSTE LE DOMAINE =====
+            # L'utilisateur tape juste le domaine et on fait l'analyse automatique
+            domain = query.strip()
             
-            # ===== 🚀 ANALYSE STRATÉGIQUE COMPLÈTE AUTOMATISÉE =====
-            if query.lower().startswith("analyze_complete:"):
-                domain = query[17:].strip()
-                if not domain:
-                    domain = "sécurité"  # Domaine par défaut
-                    
-                print(f"\n🚀 ANALYSE STRATÉGIQUE COMPLÈTE AUTOMATISÉE")
-                print(f"🎯 Domaine d'analyse: {domain.upper()}")
-                print("📋 Exécution automatique du prompt stratégique complet...")
-                
-                try:
-                    # Exécution du workflow complet automatisé
-                    complete_analysis = execute_complete_rfp_analysis(vectorstore, llm, domain)
-                    
-                    print("\n" + "="*70)
-                    print("📊 RAPPORT D'ANALYSE STRATÉGIQUE COMPLÈTE AUTOMATIQUE")
-                    print("="*70)
-                    
-                    # Affichage des résultats de l'analyse automatique
-                    if "synthesis" in complete_analysis:
-                        synthesis = complete_analysis["synthesis"]
-                        
-                        print(f"\n🤖 COMMANDES EXÉCUTÉES AUTOMATIQUEMENT:")
-                        for i, command in enumerate(synthesis["commands_executed"], 1):
-                            print(f"   {i}. {command}")
-                        
-                        print(f"\n📈 MÉTRIQUES GLOBALES:")
-                        for metric in synthesis["key_metrics"]:
-                            print(f"   • {metric}")
-                        
-                        print(f"\n💡 INSIGHTS ACTIONNABLES POUR AMÉLIORER FUTURES RFP SUR {domain.upper()}:")
-                        print("="*60)
-                        print(synthesis["actionnable_insights"])
-                        print("="*60)
-                    
-                    # ===== ÉVALUATION CORRECTE : APRÈS LA GÉNÉRATION =====
-                    if judge_llm and "synthesis" in complete_analysis and "actionnable_insights" in complete_analysis["synthesis"]:
-                        print("\n🔍 Lancement de l'évaluation automatique de fidélité...")
-                        
-                        # Utiliser les vrais documents récupérés pendant l'analyse
-                        docs_for_evaluation = []
-                        if "step1_patterns_recurrents" in complete_analysis["framework_steps"]:
-                            # Ajouter des extraits des patterns analysés
-                            basic_patterns = complete_analysis["framework_steps"]["step1_patterns_recurrents"]["basic_patterns"]
-                            for pattern in basic_patterns.get("approved_patterns", [])[:2]:
-                                docs_for_evaluation.append(pattern)
-                        
-                        # Évaluer avec les vraies données
-                        evaluation_result = evaluate_faithfulness_after_generation(
-                            question=f"Insights actionnables pour améliorer futures réponses RFP sur {domain}",
-                            answer=complete_analysis["synthesis"]["actionnable_insights"],
-                            retrieved_docs=docs_for_evaluation if docs_for_evaluation else ["Analyse stratégique complète effectuée"]
-                        )
-                        
-                        print_judge_result(evaluation_result)
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse complète: {e}")
-                continue
+            # Stocker le prompt d'analyse pour promptEnhancer.py
+            last_analysis_prompt = f"Analyse stratégique complète des RFP sur le domaine {domain}"
             
-            # ===== ANALYSE PATTERNS RÉCURRENTS =====
-            if query.lower().startswith("patterns:"):
-                category = query[9:].strip()
-                if not category:
-                    category = "exigences techniques"
-                    
-                print(f"\n📈 ANALYSE DES PATTERNS RÉCURRENTS - {category.upper()}")
-                print("🔄 Traitement vectoriel en cours...")
-                
-                try:
-                    analysis = analyze_rfp_patterns(vectorstore, category)
-                    print("-" * 60)
-                    print(f"📊 RÉSULTATS ANALYSE:")
-                    print(f"   • Total analysé: {analysis['total_analyzed']} documents RFP")
-                    print(f"   • RFP approuvés: {analysis['approved_count']} cas")
-                    print(f"   • RFP rejetés: {analysis['rejected_count']} cas")
-                    print(f"   • Taux succès: {analysis['approved_count']/(analysis['total_analyzed'] or 1)*100:.1f}%")
-                    
-                    print(f"\n💚 PATTERNS DANS RFP GAGNANTS:")
-                    for i, pattern in enumerate(analysis['approved_patterns'], 1):
-                        print(f"   {i}. {pattern}")
-                        
-                    print(f"\n🔴 PATTERNS DANS RFP PERDANTS:")
-                    for i, pattern in enumerate(analysis['rejected_patterns'], 1):
-                        print(f"   {i}. {pattern}")
-                        
-                except Exception as e:
-                    print(f"❌ Erreur analyse patterns: {e}")
-                continue
-                
-            # ===== COMPARAISON FACTEURS SUCCÈS/ÉCHEC =====
-            if query.lower().startswith("compare:"):
-                topic = query[8:].strip()
-                if not topic:
-                    topic = "méthodologie"
-                    
-                print(f"\n⚖️ COMPARAISON SUCCÈS/ÉCHEC - {topic.upper()}")
-                print("🔄 Analyse comparative en cours...")
-                
-                try:
-                    comparison = compare_success_failure_factors(vectorstore, topic)
-                    print("-" * 60)
-                    
-                    print(f"\n💚 FACTEURS DE SUCCÈS ({comparison['success_factors']['count']} cas analysés):")
-                    print(f"   📁 Sources: {', '.join(comparison['success_factors']['sources'][:3])}")
-                    for i, element in enumerate(comparison['success_factors']['key_elements'][:3], 1):
-                        print(f"   {i}. {element[:200]}...")
-                        
-                    print(f"\n🔴 FACTEURS D'ÉCHEC ({comparison['failure_factors']['count']} cas analysés):")
-                    print(f"   📁 Sources: {', '.join(comparison['failure_factors']['sources'][:3])}")
-                    for i, element in enumerate(comparison['failure_factors']['key_elements'][:3], 1):
-                        print(f"   {i}. {element[:200]}...")
-                        
-                    print(f"\n🎯 RECOMMANDATION: Focus sur facteurs succès, éviter patterns échec")
-                    
-                except Exception as e:
-                    print(f"❌ Erreur comparaison: {e}")
-                continue
-                
-            # ===== EXTRACTION ENSEIGNEMENTS MÉTIER =====
-            if query.lower().startswith("lessons:"):
-                focus_area = query[8:].strip()
-                if not focus_area:
-                    focus_area = "points faibles"
-                    
-                print(f"\n📚 EXTRACTION ENSEIGNEMENTS - {focus_area.upper()}")
-                print("🔄 Analyse pédagogique en cours...")
-                
-                try:
-                    lessons = extract_lessons_learned(vectorstore, focus_area)
-                    print("-" * 60)
-                    
-                    print(f"\n💡 ENSEIGNEMENTS DES SUCCÈS ({lessons['from_successes']['count']} cas):")
-                    for i, insight in enumerate(lessons['from_successes']['insights'], 1):
-                        print(f"   {i}. {insight}")
-                        
-                    print(f"\n⚠️ ENSEIGNEMENTS DES ÉCHECS ({lessons['from_failures']['count']} cas):")
-                    for i, insight in enumerate(lessons['from_failures']['insights'], 1):
-                        print(f"   {i}. {insight}")
-                        
-                    print(f"\n📋 RECOMMANDATIONS STRATÉGIQUES:")
-                    print(f"   {lessons['recommendations']}")
-                    
-                except Exception as e:
-                    print(f"❌ Erreur extraction lessons: {e}")
-                continue
-                
-            # ===== ANALYSE EXIGENCES RÉCURRENTES =====
-            if query.lower().startswith("requirements:"):
-                req_type = query[13:].strip()
-                if not req_type:
-                    req_type = "fonctionnalités"
-                    
-                print(f"\n🎯 EXIGENCES RÉCURRENTES - {req_type.upper()}")
-                print("🔄 Mapping des requirements en cours...")
-                
-                try:
-                    analysis = identify_recurring_requirements(vectorstore, req_type)
-                    print("-" * 60)
-                    print(f"📊 {analysis['recurrence_rate']}")
-                    
-                    print(f"\n💚 DANS RFP APPROUVÉS ({analysis['in_approved_rfp']['count']} occurrences):")
-                    print(f"   📁 Projets: {', '.join(analysis['in_approved_rfp']['sources'][:3])}")
-                    for i, example in enumerate(analysis['in_approved_rfp']['examples'], 1):
-                        print(f"   {i}. {example}")
-                        
-                    print(f"\n🔴 DANS RFP REJETÉS ({analysis['in_rejected_rfp']['count']} occurrences):")
-                    print(f"   📁 Projets: {', '.join(analysis['in_rejected_rfp']['sources'][:3])}")
-                    for i, example in enumerate(analysis['in_rejected_rfp']['examples'], 1):
-                        print(f"   {i}. {example}")
-                        
-                    print(f"\n💼 IMPACT BUSINESS: Standardiser ces exigences pour efficacité")
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse requirements: {e}")
-                continue
-            
-            # ===== 🆕 NOUVELLES ANALYSES LLM INTELLIGENTES =====
-            
-            # 🧠 ANALYSE PATTERNS STRATÉGIQUES AVEC LLM
-            if query.lower().startswith("smart_patterns:"):
-                category = query[15:].strip()
-                if not category:
-                    category = "méthodologie"
-                    
-                print(f"\n🧠 ANALYSE LLM INTELLIGENTE - PATTERNS STRATÉGIQUES")
-                print(f"📂 Catégorie: {category}")
-                print("🤖 Génération d'insights avec IA...")
-                
-                try:
-                    llm_analysis = analyze_strategic_patterns_with_llm(vectorstore, vlm_client, category)
-                    print("-" * 70)
-                    print(f"🎯 RÉSULTATS INTELLIGENCE ARTIFICIELLE:")
-                    print(f"   📊 Documents analysés: {llm_analysis['data_analyzed']['total_documents']}")
-                    print(f"   ✅ Approuvés: {llm_analysis['data_analyzed']['approved_count']}")
-                    print(f"   ❌ Rejetés: {llm_analysis['data_analyzed']['rejected_count']}")
-                    print(f"   🎲 Confiance: {llm_analysis['confidence']}")
-                    
-                    print(f"\n🤖 ANALYSE STRATÉGIQUE LLM:")
-                    print("=" * 60)
-                    print(llm_analysis['llm_strategic_analysis'])
-                    print("=" * 60)
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse LLM: {e}")
-                continue
-            
-            # 🔍 INTELLIGENCE CONCURRENTIELLE AVANCÉE
-            if query.lower().startswith("competitive:"):
-                focus_area = query[12:].strip()
-                if not focus_area:
-                    focus_area = "facteurs de différenciation"
-                    
-                print(f"\n🔍 INTELLIGENCE CONCURRENTIELLE AVANCÉE")
-                print(f"🎯 Focus: {focus_area}")
-                print("⚡ Analyse competitive avec LLM...")
-                
-                try:
-                    competitive_analysis = analyze_competitive_intelligence(vectorstore, vlm_client, focus_area)
-                    print("-" * 70)
-                    print(f"📊 Source: {competitive_analysis['data_source']}")
-                    
-                    print(f"\n🏆 INTELLIGENCE CONCURRENTIELLE:")
-                    print("=" * 60)
-                    print(competitive_analysis['competitive_intelligence'])
-                    print("=" * 60)
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse concurrentielle: {e}")
-                continue
-                
-            # ===== ANALYSE STRATÉGIQUE EXECUTIVE COMPLÈTE =====
-            if query.lower().startswith("strategy:"):
-                business_question = query[9:].strip()
-                if not business_question:
-                    business_question = "facteurs de succès dans nos propositions"
-                    
-                print(f"\n🚀 ANALYSE STRATÉGIQUE EXECUTIVE")
-                print(f"📋 Question métier: {business_question}")
-                print("🔄 Génération insights stratégiques...")
-                
-                try:
-                    # Génération contexte enrichi
-                    strategic_context = generate_strategic_insights(vectorstore, business_question)
-                    
-                    # Récupérer les documents utilisés pour le contexte
-                    relevant_docs = retrieve_similar_chunks(vectorstore, business_question, k=8)
-                    
-                    # Analyse LLM spécialisée
-                    strategic_analysis = llm.analyze_rfp_strategy(business_question, strategic_context)
-                    
-                    print("-" * 70)
-                    print(f"🎯 INSIGHTS STRATÉGIQUES PERSONNALISÉS:")
-                    print(f"{strategic_analysis}")
-                    print("-" * 70)
-                    print("💼 Ces insights sont prêts pour présentation executive")
-                    
-                    # ===== ÉVALUATION CORRECTE : APRÈS LA GÉNÉRATION =====
-                    if judge_llm:
-                        print("\n🔍 Lancement de l'évaluation automatique de fidélité...")
-                        
-                        evaluation_result = evaluate_faithfulness_after_generation(
-                            question=business_question,
-                            answer=strategic_analysis,
-                            retrieved_docs=relevant_docs
-                        )
-                        
-                        print_judge_result(evaluation_result)
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse stratégique: {e}")
-                continue
-
-            # ===== NOUVELLES ANALYSES RFP ↔ RÉPONSES =====
-            
-            # ===== COMPARAISON RFP VS RÉPONSES =====
-            if query.lower().startswith("rfp_vs_response:"):
-                topic = query[16:].strip()
-                if not topic:
-                    topic = "architecture technique"
-                    
-                print(f"\n🔄 ANALYSE RFP ↔ RÉPONSES - {topic.upper()}")
-                print("📋 Comparaison demandes clients vs nos propositions...")
-                
-                try:
-                    analysis = analyze_rfp_vs_response_patterns(vectorstore, topic)
-                    print("-" * 60)
-                    print(f"📊 RÉSULTATS ANALYSE COMPARATIVE:")
-                    
-                    print(f"\n📋 DEMANDES CLIENTS (RFP):")
-                    print(f"   • Projets gagnés: {analysis['client_demands']['approved_projects']['count']} cas")
-                    print(f"   • Projets perdus: {analysis['client_demands']['rejected_projects']['count']} cas")
-                    
-                    print(f"\n📝 NOS RÉPONSES:")
-                    print(f"   • Réponses gagnantes: {analysis['our_responses']['winning_responses']['count']} cas")
-                    print(f"   • Réponses perdantes: {analysis['our_responses']['losing_responses']['count']} cas")
-                    
-                    print(f"\n📊 ALIGNEMENT:")
-                    print(f"   • Taux de succès: {analysis['alignment_analysis']['success_rate']}")
-                    print(f"   • Volume total: {analysis['alignment_analysis']['total_client_demands']} demandes analysées")
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse RFP vs Réponses: {e}")
-                continue
-            
-            # ===== PATTERNS DANS LES RFP CLIENTS =====
-            if query.lower().startswith("rfp_patterns:"):
-                pattern_type = query[13:].strip()
-                if not pattern_type:
-                    pattern_type = "technologies"
-                    
-                print(f"\n📋 PATTERNS RFP CLIENTS - {pattern_type.upper()}")
-                print("🔍 Analyse des demandes clients récurrentes...")
-                
-                try:
-                    analysis = find_recurring_patterns_in_category(vectorstore, "rfp", pattern_type)
-                    print("-" * 60)
-                    print(f"📊 RÉSULTATS ANALYSE RFP:")
-                    print(f"   • Total occurrences: {analysis['recurrence_insights']['total_occurrences']}")
-                    print(f"   • Projets concernés: {analysis['recurrence_insights']['total_projects']}")
-                    print(f"   • Taux succès: {analysis['recurrence_insights']['success_ratio']}")
-                    print(f"   • Force pattern: {analysis['recurrence_insights']['pattern_strength']}")
-                    
-                    print(f"\n💚 PROJETS GAGNÉS ({analysis['approved_patterns']['count']} cas):")
-                    for i, example in enumerate(analysis['approved_patterns']['examples'][:2], 1):
-                        print(f"   {i}. {example[:150]}...")
-                    
-                    print(f"\n🔴 PROJETS PERDUS ({analysis['rejected_patterns']['count']} cas):")
-                    for i, example in enumerate(analysis['rejected_patterns']['examples'][:2], 1):
-                        print(f"   {i}. {example[:150]}...")
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse patterns RFP: {e}")
-                continue
-            
-            # ===== PATTERNS DANS NOS RÉPONSES =====
-            if query.lower().startswith("response_patterns:"):
-                pattern_type = query[18:].strip()
-                if not pattern_type:
-                    pattern_type = "méthodologie"
-                    
-                print(f"\n📝 PATTERNS NOS RÉPONSES - {pattern_type.upper()}")
-                print("🔍 Analyse de nos approches récurrentes...")
-                
-                try:
-                    analysis = find_recurring_patterns_in_category(vectorstore, "response", pattern_type)
-                    print("-" * 60)
-                    print(f"📊 RÉSULTATS ANALYSE RÉPONSES:")
-                    print(f"   • Total occurrences: {analysis['recurrence_insights']['total_occurrences']}")
-                    print(f"   • Projets concernés: {analysis['recurrence_insights']['total_projects']}")
-                    print(f"   • Taux succès: {analysis['recurrence_insights']['success_ratio']}")
-                    print(f"   • Force pattern: {analysis['recurrence_insights']['pattern_strength']}")
-                    
-                    print(f"\n✅ RÉPONSES GAGNANTES ({analysis['approved_patterns']['count']} cas):")
-                    for i, example in enumerate(analysis['approved_patterns']['examples'][:2], 1):
-                        print(f"   {i}. {example[:150]}...")
-                    
-                    print(f"\n❌ RÉPONSES PERDANTES ({analysis['rejected_patterns']['count']} cas):")
-                    for i, example in enumerate(analysis['rejected_patterns']['examples'][:2], 1):
-                        print(f"   {i}. {example[:150]}...")
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse patterns Réponses: {e}")
-                continue
-
-            # ===== RECHERCHE STANDARD AVEC FILTRAGE INTELLIGENT =====
-            
-            # ===== 🎯 DÉTECTION AUTOMATIQUE DOMAINE POUR ANALYSE COMPLÈTE =====
-            # Liste des domaines couramment analysés
-            common_domains = [
-                "sécurité", "security", "cloud", "agile", "méthodologie", "methodology",
-                "architecture", "infrastructure", "développement", "development", 
-                "innovation", "transformation", "digitale", "digital", "ia", "ai",
-                "data", "données", "analytique", "analytics", "devops", "scrum",
-                "kanban", "lean", "cybersécurité", "cybersecurity", "réseau", "network",
-                "base", "database", "web", "mobile", "api", "microservices", "docker",
-                "kubernetes", "aws", "azure", "gcp", "python", "java", "javascript",
-                "react", "angular", "vue", "nodejs", "machine", "learning", "blockchain",
-                "big data", "bigdata"
-            ]
-            
-            # Nettoyer la query pour la comparaison
-            clean_query = query.lower().strip()
-            
-            # Vérifier si c'est un domaine simple (pas de commande spécialisée)
-            is_domain_query = (
-                not any(clean_query.startswith(prefix) for prefix in [
-                    "patterns:", "compare:", "lessons:", "requirements:", "strategy:",
-                    "smart_patterns:", "competitive:", "rfp_vs_response:", "rfp_patterns:",
-                    "response_patterns:", "approved:", "rejected:", "analyze_complete:"
-                ]) and
-                (clean_query in common_domains or (len(clean_query.split()) <= 2 and len(clean_query) >= 3))
-            )
-            
-            if is_domain_query:
-                print(f"\n🎯 DÉTECTION AUTOMATIQUE DE DOMAINE: '{query}'")
-                print("🚀 LANCEMENT AUTOMATIQUE DE L'ANALYSE STRATÉGIQUE COMPLÈTE")
-                print("📋 Exécution du prompt complet automatisé...")
-                print("=" * 70)
-                print("🔄 PROMPT AUTOMATIQUE ACTIVÉ:")
-                print(f"'Analysez notre base de données RFP pour une analyse stratégique complète sur {query}'")
-                print("=" * 70)
-                
-                try:
-                    # Exécution automatique de l'analyse complète
-                    complete_analysis = execute_complete_rfp_analysis(vectorstore, llm, query)
-                    
-                    print("\n" + "="*70)
-                    print("📊 RAPPORT D'ANALYSE STRATÉGIQUE COMPLÈTE AUTOMATIQUE")
-                    print("="*70)
-                    
-                    # Affichage des résultats de l'analyse automatique
-                    if "synthesis" in complete_analysis:
-                        synthesis = complete_analysis["synthesis"]
-                        
-                        print(f"\n🤖 COMMANDES EXÉCUTÉES AUTOMATIQUEMENT:")
-                        for i, command in enumerate(synthesis["commands_executed"], 1):
-                            print(f"   {i}. {command}")
-                        
-                        print(f"\n📈 MÉTRIQUES GLOBALES:")
-                        for metric in synthesis["key_metrics"]:
-                            print(f"   • {metric}")
-                        
-                        print(f"\n💡 INSIGHTS ACTIONNABLES POUR AMÉLIORER FUTURES RFP SUR {query.upper()}:")
-                        print("="*60)
-                        print(synthesis["actionnable_insights"])
-                        print("="*60)
-                    
-                    print(f"\n✅ ANALYSE AUTOMATIQUE TERMINÉE POUR '{query}'")
-                    print("💡 Tapez simplement un autre domaine pour une nouvelle analyse automatique")
-                    
-                    # ===== ÉVALUATION CORRECTE : APRÈS LA GÉNÉRATION =====
-                    if judge_llm and "synthesis" in complete_analysis and "actionnable_insights" in complete_analysis["synthesis"]:
-                        print("\n🔍 Lancement de l'évaluation automatique de fidélité...")
-                        
-                        # Utiliser les vrais documents récupérés pendant l'analyse
-                        docs_for_evaluation = []
-                        if "step2_historique_forces_faiblesses" in complete_analysis["framework_steps"]:
-                            # Utiliser des extraits des forces et faiblesses analysées
-                            forces = complete_analysis["framework_steps"]["step2_historique_forces_faiblesses"]["forces"]
-                            for example in forces.get("examples", [])[:2]:
-                                docs_for_evaluation.append(example)
-                        
-                        evaluation_result = evaluate_faithfulness_after_generation(
-                            question=f"Insights actionnables pour améliorer futures réponses RFP sur {query}",
-                            answer=complete_analysis["synthesis"]["actionnable_insights"],
-                            retrieved_docs=docs_for_evaluation if docs_for_evaluation else ["Analyse stratégique automatique effectuée"]
-                        )
-                        
-                        print_judge_result(evaluation_result)
-                    
-                except Exception as e:
-                    print(f"❌ Erreur analyse automatique: {e}")
-                    print("🔄 Basculement vers recherche standard...")
-                else:
-                    continue
-            
-            # ===== DÉTECTION FILTRES PAR STATUT RFP =====
-            rfp_status = None
-            original_query = query
-            
-            if query.lower().startswith("approved:"):
-                rfp_status = "approved"
-                query = query[9:].strip()
-                print(f"💚 RECHERCHE CIBLÉE: RFP approuvés uniquement")
-            elif query.lower().startswith("rejected:"):
-                rfp_status = "rejected" 
-                query = query[9:].strip()
-                print(f"🔴 RECHERCHE CIBLÉE: RFP rejetés uniquement")
-            else:
-                print(f"🔍 RECHERCHE EXHAUSTIVE: Tous documents RFP")
-
-            # ===== EXÉCUTION RECHERCHE VECTORIELLE OPTIMISÉE =====
-            print("📡 Analyse vectorielle sémantique en cours...")
+            print(f"\n🚀 ANALYSE AUTOMATIQUE DU DOMAINE: '{domain.upper()}'")
+            print("📋 Exécution de l'analyse stratégique complète...")
             
             try:
-                if rfp_status:
-                    # Recherche filtrée avec métadonnées
-                    similar_docs = retrieve_similar_chunks_with_filter(
-                        vectorstore, query, rfp_status=rfp_status
-                    )
-                else:
-                    # Recherche globale
-                    similar_docs = retrieve_similar_chunks(vectorstore, query)
-
-                # Stocker les documents récupérés dans la variable globale
-                last_retrieved_docs = similar_docs
-
-                # ===== VALIDATION RÉSULTATS =====
-                if not similar_docs:
-                    status_msg = f" dans les RFP {rfp_status}" if rfp_status else ""
-                    print(f"❌ Aucun document pertinent trouvé{status_msg}")
-                    print("💡 Essayez: mots-clés différents, recherche plus générale")
-                    continue
-
-                # ===== CONSTRUCTION CONTEXTE ENRICHI =====
-                context = get_context_with_sources(similar_docs)
-                print("✅ Contexte construit, génération réponse IA...")
-
-                # ===== GÉNÉRATION RÉPONSE INTELLIGENTE =====
-                answer = llm.invoke(query, context)
+                # Exécution du workflow complet automatisé
+                complete_analysis = execute_complete_rfp_analysis(vectorstore, llm, domain)
                 
-                print("\n" + "="*60)
-                print("🗨️ RÉPONSE GÉNÉRÉE PAR IA:")
-                print("="*60)
-                print(f"{answer}")
-                print("="*60)
+                print("\n" + "="*70)
+                print("📊 RAPPORT D'ANALYSE STRATÉGIQUE COMPLÈTE")
+                print("="*70)
                 
-                # ===== ÉVALUATION CORRECTE : APRÈS LA GÉNÉRATION =====
-                if judge_llm:
-                    print("\n🔍 Lancement de l'évaluation automatique de fidélité...")
+                # Affichage des résultats de l'analyse automatique
+                if "synthesis" in complete_analysis:
+                    synthesis = complete_analysis["synthesis"]
+                    
+                    print(f"\n📈 MÉTRIQUES GLOBALES:")
+                    for metric in synthesis["key_metrics"]:
+                        print(f"   • {metric}")
+                    
+                    print(f"\n💡 INSIGHTS ACTIONNABLES POUR AMÉLIORER FUTURES RFP SUR {domain.upper()}:")
+                    print("="*60)
+                    print(synthesis["actionnable_insights"])
+                    print("="*60)
+                
+                # ===== ÉVALUATION AVEC VARIABLES SIMPLES =====
+                if judge_llm and "synthesis" in complete_analysis and "actionnable_insights" in complete_analysis["synthesis"]:
+                    print("\n🔍 Évaluation automatique de fidélité...")
+                    
+                    docs_for_evaluation = []
+                    if "step1_patterns_recurrents" in complete_analysis["framework_steps"]:
+                        basic_patterns = complete_analysis["framework_steps"]["step1_patterns_recurrents"]["basic_patterns"]
+                        for pattern in basic_patterns.get("approved_patterns", [])[:2]:
+                            docs_for_evaluation.append(pattern)
                     
                     evaluation_result = evaluate_faithfulness_after_generation(
-                        question=query,
-                        answer=answer,
-                        retrieved_docs=similar_docs
+                        question=f"Insights actionnables pour améliorer futures réponses RFP sur {domain}",
+                        answer=complete_analysis["synthesis"]["actionnable_insights"],
+                        retrieved_docs=docs_for_evaluation if docs_for_evaluation else ["Analyse stratégique complète effectuée"]
                     )
                     
                     print_judge_result(evaluation_result)
                 
-                # ===== STATISTIQUES ET TRAÇABILITÉ MÉTIER =====
-                approved_count = sum(1 for doc in similar_docs if doc.metadata.get('rfp_status') == 'approved')
-                rejected_count = sum(1 for doc in similar_docs if doc.metadata.get('rfp_status') == 'rejected')
-                vlm_count = sum(1 for doc in similar_docs if doc.metadata.get('doc_type') == 'vlm_extracted')
-                
-                print(f"\n📊 ANALYTICS DE LA RECHERCHE:")
-                print(f"   • Sources utilisées: {len(similar_docs)} documents pertinents")
-                print(f"   • RFP approuvés: {approved_count} | RFP rejetés: {rejected_count}")
-                print(f"   • Documents VLM (scannés): {vlm_count}")
-                print(f"   • Taux de confiance: Élevé (embeddings sémantiques)")
-                print(f"   • Requête originale: '{original_query}'")
-                
             except Exception as e:
-                print(f"❌ Erreur lors de la recherche: {e}")
-                continue
+                print(f"❌ Erreur analyse: {e}")
+            continue
                 
         except KeyboardInterrupt:
             # ===== GESTION INTERRUPTION PROPRE =====
@@ -2528,8 +2004,6 @@ def main():
             # ===== GESTION ERREURS ROBUSTE =====
             print(f"\n❌ Erreur système: {e}")
             print("🔄 Le système reste opérationnel, continuez vos analyses...")
-            continue
-
 # ===============================================================================
 # POINT D'ENTRÉE PRINCIPAL DU SYSTÈME RAG STRATÉGIQUE
 # ===============================================================================
@@ -2549,12 +2023,16 @@ if __name__ == "__main__":
     print("=" * 70)
     
     try:
-        # Lancement de l'orchestrateur principal
         main()
     except Exception as e:
-        print(f"\n❌ ERREUR CRITIQUE AU DÉMARRAGE: {e}")
-        print("🔧 Vérifiez: installation dépendances, clés API, permissions fichiers")
-        print("📞 Support: Consultez la documentation technique pour troubleshooting")
-    finally:
-        print("\n🏁 Session terminée. Merci d'avoir utilisé le système RAG stratégique!")
-        print("💼 Les insights générés sont prêts pour vos décisions business.")
+        print(f"❌ Erreur fatale: {e}")
+        print("🛠️ Consultez la documentation ou contactez le support technique")
+    
+    try:
+        main()
+    except Exception as e:
+        print(f"❌ Erreur fatale: {e}")
+        print("�️ Consultez la documentation ou contactez le support technique")
+    
+    print("\n👋 Session d'analyse RFP terminée")
+    print("💾 Merci d'avoir utilisé le système d'intelligence stratégique")
