@@ -21,12 +21,11 @@ interface ModuleDetail {
   requiredVersion?: string
   complexity: "Low" | "Medium" | "High"
   estimatedEffort?: string
-  dependencies: string[]
+  technical_stack: string[]
   priority: "High" | "Medium" | "Low"
   businessImpact: string
   technicalDetails: string
   updateReason?: string
-  creationReason?: string
 }
 
 export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) {
@@ -45,7 +44,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "2.1.0",
       requiredVersion: "2.1.0",
       complexity: "Medium",
-      dependencies: ["Database Module", "Encryption Module"],
+      technical_stack: ["Database Module", "Encryption Module"],
       priority: "High",
       businessImpact: "Critical for user security and access control",
       technicalDetails: "Supports OAuth 2.0, JWT tokens, MFA, LDAP integration",
@@ -59,7 +58,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "1.8.2",
       requiredVersion: "1.8.2",
       complexity: "High",
-      dependencies: ["Security Module", "Audit Module"],
+      technical_stack: ["Security Module", "Audit Module"],
       priority: "High",
       businessImpact: "Essential for transaction processing and revenue",
       technicalDetails: "PCI DSS compliant, supports Stripe, PayPal, bank transfers",
@@ -73,7 +72,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "2.0.1",
       requiredVersion: "2.0.1",
       complexity: "Low",
-      dependencies: ["Cloud Storage", "Security Module"],
+      technical_stack: ["Cloud Storage", "Security Module"],
       priority: "Medium",
       businessImpact: "Enables document management and file sharing",
       technicalDetails: "Supports AWS S3, Azure Blob, virus scanning, compression",
@@ -82,12 +81,12 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       id: "email_service",
       name: "Email Service Module",
       description: "Email sending service with templates and tracking",
-      category: "Communication",
+      category: "AI",
       status: "ready",
       currentVersion: "1.6.3",
       requiredVersion: "1.6.3",
       complexity: "Low",
-      dependencies: ["Template Engine", "Queue System"],
+      technical_stack: ["Template Engine", "Queue System"],
       priority: "Medium",
       businessImpact: "Critical for user communication and notifications",
       technicalDetails: "SMTP/API support, template engine, delivery tracking, bounce handling",
@@ -101,7 +100,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "2.2.0",
       requiredVersion: "2.2.0",
       complexity: "Medium",
-      dependencies: ["Database Drivers"],
+      technical_stack: ["Database Drivers"],
       priority: "High",
       businessImpact: "Ensures optimal database performance and reliability",
       technicalDetails: "Connection pooling, failover support, monitoring, auto-scaling",
@@ -115,7 +114,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "1.9.0",
       requiredVersion: "1.9.0",
       complexity: "High",
-      dependencies: ["Load Balancer", "Security Module"],
+      technical_stack: ["Load Balancer", "Security Module"],
       priority: "High",
       businessImpact: "Enables secure and scalable API ecosystem",
       technicalDetails: "Rate limiting, API versioning, authentication, monitoring",
@@ -129,7 +128,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "1.4.0",
       requiredVersion: "1.4.0",
       complexity: "High",
-      dependencies: ["Elasticsearch", "Data Pipeline"],
+      technical_stack: ["Elasticsearch", "Data Pipeline"],
       priority: "Medium",
       businessImpact: "Improves user experience with fast search capabilities",
       technicalDetails: "Elasticsearch integration, faceted search, auto-complete, analytics",
@@ -143,7 +142,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       currentVersion: "1.7.2",
       requiredVersion: "1.7.2",
       complexity: "Medium",
-      dependencies: ["Redis", "Monitoring"],
+      technical_stack: ["Redis", "Monitoring"],
       priority: "Medium",
       businessImpact: "Significantly improves application performance",
       technicalDetails: "Redis clustering, cache invalidation, TTL management, metrics",
@@ -154,13 +153,13 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       id: "notification_system",
       name: "Real-time Notification System",
       description: "WebSocket-based notification system with push notifications",
-      category: "Communication",
+      category: "Web",
       status: "needs_update",
       currentVersion: "1.5.0",
       requiredVersion: "2.0.0",
       complexity: "Medium",
       estimatedEffort: "3-4 weeks",
-      dependencies: ["WebSocket Server", "Push Service"],
+      technical_stack: ["WebSocket Server", "Push Service"],
       priority: "High",
       businessImpact: "Critical for real-time user engagement",
       technicalDetails: "WebSocket connections, push notifications, message queuing",
@@ -176,7 +175,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       requiredVersion: "2.5.0",
       complexity: "High",
       estimatedEffort: "6-8 weeks",
-      dependencies: ["Data Pipeline", "Visualization Engine"],
+      technical_stack: ["Data Pipeline", "Visualization Engine"],
       priority: "Medium",
       businessImpact: "Essential for business intelligence and decision making",
       technicalDetails: "Chart.js integration, data export, real-time updates",
@@ -192,7 +191,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       requiredVersion: "2.2.0",
       complexity: "Medium",
       estimatedEffort: "4-5 weeks",
-      dependencies: ["Log Aggregation", "Metrics Collection"],
+      technical_stack: ["Log Aggregation", "Metrics Collection"],
       priority: "High",
       businessImpact: "Critical for system reliability and troubleshooting",
       technicalDetails: "ELK stack integration, metrics collection, alerting",
@@ -208,7 +207,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       requiredVersion: "2.1.0",
       complexity: "Medium",
       estimatedEffort: "3-4 weeks",
-      dependencies: ["Authentication", "Database"],
+      technical_stack: ["Authentication", "Database"],
       priority: "Medium",
       businessImpact: "Important for user experience and administration",
       technicalDetails: "Role-based access control, user profiles, audit trails",
@@ -224,11 +223,10 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       status: "to_create",
       complexity: "High",
       estimatedEffort: "12-16 weeks",
-      dependencies: ["Data Pipeline", "Model Registry", "GPU Infrastructure"],
+      technical_stack: ["Data Pipeline", "Model Registry", "GPU Infrastructure"],
       priority: "High",
       businessImpact: "Enables advanced analytics and predictive capabilities",
       technicalDetails: "TensorFlow/PyTorch integration, model serving, A/B testing",
-      creationReason: "Required for predictive analytics and intelligent recommendations",
     },
     {
       id: "blockchain_integration",
@@ -238,11 +236,10 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       status: "to_create",
       complexity: "High",
       estimatedEffort: "14-18 weeks",
-      dependencies: ["Crypto Wallet", "Smart Contract Engine"],
+      technical_stack: ["Crypto Wallet", "Smart Contract Engine"],
       priority: "Medium",
       businessImpact: "Enables decentralized features and crypto payments",
       technicalDetails: "Ethereum/Polygon integration, smart contracts, wallet management",
-      creationReason: "Client requires blockchain-based payment and verification system",
     },
     {
       id: "iot_gateway",
@@ -252,11 +249,10 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       status: "to_create",
       complexity: "High",
       estimatedEffort: "10-12 weeks",
-      dependencies: ["Device Registry", "Protocol Handlers", "Data Pipeline"],
+      technical_stack: ["Device Registry", "Protocol Handlers", "Data Pipeline"],
       priority: "High",
       businessImpact: "Critical for IoT ecosystem and device management",
       technicalDetails: "MQTT/CoAP protocols, device provisioning, data aggregation",
-      creationReason: "RFP requires comprehensive IoT device management capabilities",
     },
     {
       id: "advanced_reporting",
@@ -266,11 +262,10 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       status: "to_create",
       complexity: "Medium",
       estimatedEffort: "8-10 weeks",
-      dependencies: ["Template Engine", "Data Export", "Scheduler"],
+      technical_stack: ["Template Engine", "Data Export", "Scheduler"],
       priority: "Medium",
       businessImpact: "Important for business reporting and compliance",
       technicalDetails: "Report templates, PDF/Excel export, scheduled delivery",
-      creationReason: "Client needs automated reporting with custom templates",
     },
     {
       id: "mobile_app_backend",
@@ -280,11 +275,10 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       status: "to_create",
       complexity: "Medium",
       estimatedEffort: "6-8 weeks",
-      dependencies: ["API Gateway", "Push Notifications", "Offline Sync"],
+      technical_stack: ["API Gateway", "Push Notifications", "Offline Sync"],
       priority: "High",
       businessImpact: "Essential for mobile user experience",
       technicalDetails: "REST/GraphQL APIs, offline sync, push notifications",
-      creationReason: "RFP requires native mobile application support",
     },
     {
       id: "compliance_module",
@@ -294,11 +288,10 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
       status: "to_create",
       complexity: "High",
       estimatedEffort: "10-14 weeks",
-      dependencies: ["Audit Trail", "Data Governance", "Privacy Controls"],
+      technical_stack: ["Audit Trail", "Data Governance", "Privacy Controls"],
       priority: "High",
       businessImpact: "Critical for regulatory compliance and risk management",
       technicalDetails: "Data classification, consent management, audit trails",
-      creationReason: "Client operates in regulated industry requiring strict compliance",
     },
   ]
 
@@ -307,7 +300,6 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
     "Security",
     "Finance",
     "Storage",
-    "Communication",
     "Database",
     "Infrastructure",
     "Search",
@@ -552,9 +544,9 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
                     </div>
 
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Dependencies:</h4>
+                      <h4 className="font-medium text-sm mb-2">Technological Stack:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {module.dependencies.map((dep, index) => (
+                        {module.technical_stack.map((dep, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {dep}
                           </Badge>
@@ -619,9 +611,9 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
                     </div>
 
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Dependencies:</h4>
+                      <h4 className="font-medium text-sm mb-2">Technical Stack:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {module.dependencies.map((dep, index) => (
+                        {module.technical_stack.map((dep, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {dep}
                           </Badge>
@@ -668,11 +660,6 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
                     </div>
 
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Creation Reason:</h4>
-                      <p className="text-sm text-gray-700">{module.creationReason}</p>
-                    </div>
-
-                    <div>
                       <h4 className="font-medium text-sm mb-2">Business Impact:</h4>
                       <p className="text-sm text-gray-700">{module.businessImpact}</p>
                     </div>
@@ -683,9 +670,9 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
                     </div>
 
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Dependencies:</h4>
+                      <h4 className="font-medium text-sm mb-2">Technical Stack:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {module.dependencies.map((dep, index) => (
+                        {module.technical_stack.map((dep, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {dep}
                           </Badge>
