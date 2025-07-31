@@ -301,60 +301,6 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
         })}
       </div>
 
-      {/* Cost Factors */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Cost Adjustment Factors</CardTitle>
-          <CardDescription>Adjust estimates based on project requirements</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Urgency Multiplier</label>
-              <Input
-                type="number"
-                step="0.1"
-                min="0.5"
-                max="3"
-                value={customFactors.urgencyMultiplier}
-                onChange={(e) =>
-                  setCustomFactors((prev) => ({ ...prev, urgencyMultiplier: Number.parseFloat(e.target.value) }))
-                }
-              />
-              <div className="text-xs text-gray-500 mt-1">1.0 = Normal, 1.5 = Urgent, 2.0 = Critical</div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Quality Multiplier</label>
-              <Input
-                type="number"
-                step="0.1"
-                min="0.8"
-                max="2"
-                value={customFactors.qualityMultiplier}
-                onChange={(e) =>
-                  setCustomFactors((prev) => ({ ...prev, qualityMultiplier: Number.parseFloat(e.target.value) }))
-                }
-              />
-              <div className="text-xs text-gray-500 mt-1">1.0 = Standard, 1.3 = High, 1.6 = Enterprise</div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Risk Buffer</label>
-              <Input
-                type="number"
-                step="0.05"
-                min="0"
-                max="0.5"
-                value={customFactors.riskBuffer}
-                onChange={(e) =>
-                  setCustomFactors((prev) => ({ ...prev, riskBuffer: Number.parseFloat(e.target.value) }))
-                }
-              />
-              <div className="text-xs text-gray-500 mt-1">0.2 = 20% buffer, 0.3 = 30% buffer</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Detailed Breakdown */}
       {selectedModules.length > 0 && (
         <Card>

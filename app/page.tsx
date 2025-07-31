@@ -9,25 +9,22 @@ import {
   Users,
   TrendingUp,
   AlertCircle,
-  GitBranch,
   FileOutput,
-  XCircle,
   Calculator,
+  DockIcon,
 } from "lucide-react"
-import { RFPUpload } from "@/components/rfp-upload"
 import { AnalysisDashboard } from "@/components/analysis-dashboard"
 import { ModuleLibrary } from "@/components/module-library"
 import { RecommendationsPanel } from "@/components/recommendations-panel"
-import { AnalysisPipeline } from "@/components/analysis-pipeline"
 import { ReportsPanel } from "@/components/reports-panel"
-import { WinLosePatterns } from "@/components/win-lose-patterns"
-import { FailureAnalysis } from "@/components/failure-analysis"
 import { ModuleCostEstimator } from "@/components/module-cost-estimator"
 import { DetailedModuleBreakdown } from "@/components/detailed-module-breakdown"
 import { RecruitmentOptimizer } from "@/components/recruitment-optimizer"
+import { PatternAnalysis } from "@/components/patternAnalysis"
+import { RFPAnalysis } from "@/components/rfp_analysis"
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState("upload")
+  const [activeTab, setActiveTab] = useState("rfp-analysis")
   const [analysisData, setAnalysisData] = useState(null)
 
   const handleAnalysisComplete = (data: any) => {
@@ -36,14 +33,12 @@ export default function HomePage() {
   }
 
   const tabs = [
-    { id: "upload", label: "RFP Import", icon: Upload },
-    { id: "pipeline", label: "Analysis Pipeline", icon: GitBranch },
+    { id: "rfp-analysis", label: "RFP Analysis", icon: Upload },
     { id: "dashboard", label: "Results Dashboard", icon: Brain },
     { id: "breakdown", label: "Module Breakdown", icon: FileText },
     { id: "modules", label: "Module Library", icon: FileText },
-    { id: "recommendations", label: "AI Recommendations", icon: AlertCircle },
-    { id: "patterns", label: "Win/Lose Patterns", icon: TrendingUp },
-    { id: "failures", label: "Failure Analysis", icon: XCircle },
+    // { id: "recommendations", label: "AI Recommendations", icon: AlertCircle },
+    { id: "pattern-analysis", label: "Pattern Analysis", icon: TrendingUp },
     { id: "recruitment", label: "Recruitment Optimizer", icon: Users },
     { id: "costs", label: "Cost Estimator", icon: Calculator },
     { id: "reports", label: "Reports & Export", icon: FileOutput },
@@ -57,10 +52,10 @@ export default function HomePage() {
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Brain className="w-6 h-6 text-white" />
+                <DockIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">RFP Analyzer Pro</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Aura</h1>
                 <p className="text-sm text-gray-500">Module Library Creation & Analysis Platform</p>
               </div>
             </div>
@@ -105,14 +100,12 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === "upload" && <RFPUpload onAnalysisComplete={handleAnalysisComplete} />}
-        {activeTab === "pipeline" && <AnalysisPipeline data={analysisData} />}
+        {activeTab === "rfp-analysis" && <RFPAnalysis onAnalysisComplete={handleAnalysisComplete} />}
         {activeTab === "dashboard" && <AnalysisDashboard data={analysisData} />}
         {activeTab === "breakdown" && <DetailedModuleBreakdown data={analysisData} />}
         {activeTab === "modules" && <ModuleLibrary />}
-        {activeTab === "recommendations" && <RecommendationsPanel data={analysisData} />}
-        {activeTab === "patterns" && <WinLosePatterns data={analysisData} />}
-        {activeTab === "failures" && <FailureAnalysis data={analysisData} />}
+        {/* {activeTab === "recommendations" && <RecommendationsPanel data={analysisData} />} */}
+        {activeTab === "pattern-analysis" && <PatternAnalysis data={analysisData} />}
         {activeTab === "recruitment" && <RecruitmentOptimizer data={analysisData} />}
         {activeTab === "costs" && <ModuleCostEstimator data={analysisData} />}
         {activeTab === "reports" && <ReportsPanel data={analysisData} />}

@@ -1009,52 +1009,149 @@ export function RecruitmentOptimizer({ data }: RecruitmentOptimizerProps) {
         </Card>
       )}
 
-      {/* Overall Recommendations */}
+      {/* Overall Recruitment Strategy */}
       <Card>
         <CardHeader>
           <CardTitle>Overall Recruitment Strategy</CardTitle>
           <CardDescription>Optimized hiring plan for all required skills</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {skillRequirements.map((skill) => {
-              const optimal = calculateOptimalChoice(skill)[0]
-              return (
-                <div key={skill.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <div className="font-medium">{skill.skillName}</div>
-                    <div className="text-sm text-gray-600">
-                      {skill.level} • {skill.projectDuration} months • {skill.urgency}
+          <div className="space-y-6">
+            {/* Current Skills */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm text-gray-800">Current Skill Requirements</h4>
+              {skillRequirements.map((skill) => {
+                const optimal = calculateOptimalChoice(skill)[0]
+                return (
+                  <div key={skill.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">{skill.skillName}</div>
+                      <div className="text-sm text-gray-600">
+                        {skill.level} • {skill.projectDuration} months • {skill.urgency}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <Badge className={getContractColor(optimal.type)}>{formatContractType(optimal.type)}</Badge>
+                      <div className="text-right">
+                        <div className="font-bold">€{Math.round(optimal.totalProjectCost / 1000)}K</div>
+                        <div className="text-sm text-gray-600">€{Math.round(optimal.totalMonthlyCost)}/month</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <Badge className={getContractColor(optimal.type)}>{formatContractType(optimal.type)}</Badge>
-                    <div className="text-right">
-                      <div className="font-bold">€{Math.round(optimal.totalProjectCost / 1000)}K</div>
-                      <div className="text-sm text-gray-600">€{Math.round(optimal.totalMonthlyCost)}/month</div>
+                )
+              })}
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between font-bold text-lg">
+                  <span>Total Recruitment Cost:</span>
+                  <span className="text-green-600">
+                    €
+                    {Math.round(
+                      skillRequirements.reduce((sum, skill) => {
+                        const optimal = calculateOptimalChoice(skill)[0]
+                        return sum + optimal.totalProjectCost
+                      }, 0) / 1000,
+                    )}
+                    K
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600 mt-1">
+                  Optimized mix: {skillRequirements.filter((s) => calculateOptimalChoice(s)[0].type === "CDI").length}{" "}
+                  CDI, {skillRequirements.filter((s) => calculateOptimalChoice(s)[0].type === "CDD").length} CDD,{" "}
+                  {skillRequirements.filter((s) => calculateOptimalChoice(s)[0].type === "Consultant").length} Consultants
+                </div>
+              </div>
+            </div>
+
+            {/* New Profile Recruitment Recommendations */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm text-gray-800 flex items-center space-x-2">
+                <Users className="w-4 h-4 text-green-600" />
+                <span>New Profile Recruitment Recommendations</span>
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-white rounded-lg border-l-4 border-green-500">
+                  <div className="flex items-start space-x-2">
+                    <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-sm text-green-800">Data Scientist</div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Senior • Immediate • 12 months • High Impact
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Enhances analytics for Predictive Analytics and AI/ML modules.
+                      </div>
+                      <div className="mt-2">
+                        <Badge className="bg-green-100 text-green-800">Consultant</Badge>
+                        <span className="ml-2 text-xs font-medium text-green-600">€180K est. cost</span>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-700">
+                        <strong>Sourcing:</strong> LinkedIn, Data Science Job Boards
+                      </div>
+                      <div className="mt-1 text-xs text-gray-700">
+                        <strong>Why:</strong> Specialized expertise for urgent analytics needs.
+                      </div>
                     </div>
                   </div>
                 </div>
-              )
-            })}
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between font-bold text-lg">
-                <span>Total Recruitment Cost:</span>
-                <span className="text-green-600">
-                  €
-                  {Math.round(
-                    skillRequirements.reduce((sum, skill) => {
-                      const optimal = calculateOptimalChoice(skill)[0]
-                      return sum + optimal.totalProjectCost
-                    }, 0) / 1000,
-                  )}
-                  K
-                </span>
+                <div className="p-4 bg-white rounded-lg border-l-4 border-green-500">
+                  <div className="flex items-start space-x-2">
+                    <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-sm text-green-800">UI/UX Designer</div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Mid-level • Short-term • 6 months • Medium Impact
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Improves user experience for Mobile App Backend and Offline Sync.
+                      </div>
+                      <div className="mt-2">
+                        <Badge className="bg-teal-100 text-teal-800">Freelancer</Badge>
+                        <span className="ml-2 text-xs font-medium text-green-600">€50K est. cost</span>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-700">
+                        <strong>Sourcing:</strong> Upwork, Dribbble, Behance
+                      </div>
+                      <div className="mt-1 text-xs text-gray-700">
+                        <strong>Why:</strong> Flexible, task-specific design work for short-term needs.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-white rounded-lg border-l-4 border-green-500">
+                  <div className="flex items-start space-x-2">
+                    <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-sm text-green-800">Project Manager</div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Senior • Long-term • 24 months • Critical Impact
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Streamlines execution across all critical modules.
+                      </div>
+                      <div className="mt-2">
+                        <Badge className="bg-blue-100 text-blue-800">CDI</Badge>
+                        <span className="ml-2 text-xs font-medium text-green-600">€220K est. cost</span>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-700">
+                        <strong>Sourcing:</strong> Internal Talent Pool, LinkedIn
+                      </div>
+                      <div className="mt-1 text-xs text-gray-700">
+                        <strong>Why:</strong> Long-term leadership for team integration and project success.
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-sm text-gray-600 mt-1">
-                Optimized mix: {skillRequirements.filter((s) => calculateOptimalChoice(s)[0].type === "CDI").length}{" "}
-                CDI, {skillRequirements.filter((s) => calculateOptimalChoice(s)[0].type === "CDD").length} CDD,{" "}
-                {skillRequirements.filter((s) => calculateOptimalChoice(s)[0].type === "Consultant").length} Consultants
+              <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <div className="font-medium text-sm text-green-800">Recruitment Strategy Tips</div>
+                    <div className="text-xs text-green-700 mt-1">
+                      Leverage global talent platforms like LinkedIn and Upwork for rapid hiring. Partner with industry networks for specialized roles. Prioritize candidates with proven expertise in high-impact modules. Use AI-driven job matching for efficiency.
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
