@@ -34,7 +34,7 @@ interface Pattern {
   frequency: number
   impact: "high" | "medium" | "low" | "technical" | "functional" | "process" | "commercial"
   category: string
-  examples: string[]
+  // examples: string[]
   recommendations: string[]
   historicalData: {
     totalOccurrences: number
@@ -56,7 +56,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 85,
       impact: "high",
       category: "Technical",
-      examples: ["Microservices architecture on AWS/Azure", "Serverless computing approach", "Container orchestration with Kubernetes"],
+      // examples: ["Microservices architecture on AWS/Azure", "Serverless computing approach", "Container orchestration with Kubernetes"],
       recommendations: ["Always propose cloud-native solutions", "Highlight scalability benefits", "Include cost optimization strategies"],
       historicalData: { totalOccurrences: 23, successRate: 87, avgProjectValue: 2500000 },
       isWin: true,
@@ -68,7 +68,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 92,
       impact: "high",
       category: "Process",
-      examples: ["Sprint-based delivery cycles", "Continuous integration/deployment", "Regular client feedback loops"],
+      //examples: ["Sprint-based delivery cycles", "Continuous integration/deployment", "Regular client feedback loops"],
       recommendations: ["Propose 2-week sprint cycles", "Include client in sprint reviews", "Demonstrate CI/CD capabilities"],
       historicalData: { totalOccurrences: 31, successRate: 94, avgProjectValue: 1800000 },
       isWin: true,
@@ -80,7 +80,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 78,
       impact: "high",
       category: "Security",
-      examples: ["Zero-trust security model", "End-to-end encryption", "Regular security audits"],
+      //examples: ["Zero-trust security model", "End-to-end encryption", "Regular security audits"],
       recommendations: ["Include security architect in team", "Propose regular penetration testing", "Highlight compliance certifications"],
       historicalData: { totalOccurrences: 19, successRate: 89, avgProjectValue: 3200000 },
       isWin: true,
@@ -92,7 +92,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 71,
       impact: "medium",
       category: "Design",
-      examples: ["User journey mapping", "Accessibility compliance (WCAG)", "Mobile-first responsive design"],
+      //examples: ["User journey mapping", "Accessibility compliance (WCAG)", "Mobile-first responsive design"],
       recommendations: ["Include UX research phase", "Propose user testing sessions", "Demonstrate accessibility features"],
       historicalData: { totalOccurrences: 16, successRate: 81, avgProjectValue: 1200000 },
       isWin: true,
@@ -104,7 +104,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 65,
       impact: "high",
       category: "Analytics",
-      examples: ["Real-time dashboards", "Predictive analytics", "Machine learning integration"],
+      //examples: ["Real-time dashboards", "Predictive analytics", "Machine learning integration"],
       recommendations: ["Include data scientist in team", "Propose ML model development", "Highlight ROI from analytics"],
       historicalData: { totalOccurrences: 14, successRate: 76, avgProjectValue: 2800000 },
       isWin: true,
@@ -117,7 +117,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 78,
       impact: "technical",
       category: "Technical",
-      examples: ["No fraud detection AI", "Missing recommendation engine", "Lack of predictive maintenance"],
+      //examples: ["No fraud detection AI", "Missing recommendation engine", "Lack of predictive maintenance"],
       recommendations: ["Invest in AI/ML expertise", "Include predictive analytics", "Partner with AI specialists"],
       historicalData: { totalOccurrences: 15, successRate: 19, avgProjectValue: 3200000 },
       isWin: false,
@@ -129,7 +129,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 65,
       impact: "technical",
       category: "Technical",
-      examples: ["No ERP integration", "Missing API management", "Data silos"],
+      //examples: ["No ERP integration", "Missing API management", "Data silos"],
       recommendations: ["Develop robust API gateways", "Plan for legacy system integration", "Implement ETL pipelines"],
       historicalData: { totalOccurrences: 12, successRate: 25, avgProjectValue: 2100000 },
       isWin: false,
@@ -141,7 +141,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 72,
       impact: "technical",
       category: "Security",
-      examples: ["Weak authentication", "No threat monitoring", "Compliance failures"],
+      //examples: ["Weak authentication", "No threat monitoring", "Compliance failures"],
       recommendations: ["Implement zero-trust security", "Conduct regular security audits", "Ensure compliance monitoring"],
       historicalData: { totalOccurrences: 15, successRate: 19, avgProjectValue: 2800000 },
       isWin: false,
@@ -153,7 +153,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 58,
       impact: "functional",
       category: "Design",
-      examples: ["Non-responsive design", "Poor accessibility", "No mobile support"],
+      // examples: ["Non-responsive design", "Poor accessibility", "No mobile support"],
       recommendations: ["Invest in UX research", "Ensure WCAG compliance", "Develop mobile-first designs"],
       historicalData: { totalOccurrences: 12, successRate: 25, avgProjectValue: 1800000 },
       isWin: false,
@@ -165,7 +165,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       frequency: 67,
       impact: "commercial",
       category: "Commercial",
-      examples: ["Underestimated complexity", "Hidden costs", "Poor resource planning"],
+      //examples: ["Underestimated complexity", "Hidden costs", "Poor resource planning"],
       recommendations: ["Use cost estimation tools", "Include contingency budgets", "Optimize resource allocation"],
       historicalData: { totalOccurrences: 12, successRate: 25, avgProjectValue: 2200000 },
       isWin: false,
@@ -349,7 +349,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
                 </div>
               )}
             </div>
-            <div>
+            {/*<div>
               <h4 className="font-medium text-sm mb-2">Examples:</h4>
               <ul className="space-y-1">
                 {pattern.examples.slice(0, 2).map((example, index) => (
@@ -359,7 +359,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div>*/}
             <div>
               <h4 className="font-medium text-sm mb-2">{isWin ? "Best Practices:" : "How to Avoid:"}</h4>
               <ul className="space-y-1">

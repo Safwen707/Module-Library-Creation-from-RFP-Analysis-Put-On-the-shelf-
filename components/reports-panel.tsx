@@ -353,7 +353,7 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
                           <h5 className="font-medium mb-2">Analysis Metrics</h5>
                           <div className="space-y-1">
                             <div>Total Requirements: {data.totalRequirements}</div>
-                            <div>Existing Modules: {data.existingModules}</div>
+                            <div>Ready-to-use Modules: {data.existingModules}</div>
                             <div>Modules to Modify: {data.modulesToModify}</div>
                             <div>New Modules Needed: {data.newModulesNeeded}</div>
                           </div>

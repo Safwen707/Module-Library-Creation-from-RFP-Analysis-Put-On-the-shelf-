@@ -2,6 +2,22 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "description": "tln_tn_prjct",
+  "homepage": "https://github.com/Safwen707/Module-Library-Creation-from-RFP-Analysis-Put-On-the-shelf-#readme",
+  "bugs": {
+    "url": "https://github.com/Safwen707/Module-Library-Creation-from-RFP-Analysis-Put-On-the-shelf-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Safwen707/Module-Library-Creation-from-RFP-Analysis-Put-On-the-shelf-.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
