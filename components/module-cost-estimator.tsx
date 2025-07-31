@@ -24,7 +24,7 @@ interface ModuleCost {
   dependencies: string[]
   estimatedCost: number
   confidenceLevel: number
-  created : boolean
+  created: boolean
 }
 
 export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
@@ -49,7 +49,7 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
       dependencies: ["Security Module", "Monitoring Module"],
       estimatedCost: 5000,
       confidenceLevel: 85,
-      created : true,
+      created: true,
     },
     {
       id: "ai_ml_engine",
@@ -63,7 +63,7 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
       dependencies: ["Data Pipeline", "Model Training"],
       estimatedCost: 29700,
       confidenceLevel: 70,
-      created : false,
+      created: false,
     },
     {
       id: "real_time_analytics",
@@ -77,7 +77,7 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
       dependencies: ["Data Visualization", "API Gateway"],
       estimatedCost: 17250,
       confidenceLevel: 90,
-      created : false,
+      created: false,
     },
     {
       id: "blockchain_integration",
@@ -91,7 +91,7 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
       dependencies: ["Crypto Wallet", "Smart Contracts"],
       estimatedCost: 7500,
       confidenceLevel: 65,
-      created : true
+      created: true
     },
     {
       id: "iot_gateway",
@@ -105,7 +105,7 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
       dependencies: ["Device Management", "Protocol Handlers"],
       estimatedCost: 9200,
       confidenceLevel: 80,
-      created : true
+      created: true
     },
     {
       id: "advanced_security",
@@ -119,7 +119,7 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
       dependencies: ["Encryption", "Identity Management"],
       estimatedCost: 18200,
       confidenceLevel: 85,
-      created : false
+      created: false
     },
   ]
 
@@ -129,7 +129,6 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
           ? prev.filter((id) => id !== moduleId)
           : [...prev, moduleId]
 
-      // Update module states when deselecting
       if (!newSelection.includes(moduleId)) {
         setModuleStates((prev) => {
           const newStates = { ...prev }
@@ -137,7 +136,6 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
           return newStates
         })
       } else {
-        // Default to 'add' when selecting a new module
         setModuleStates((prev) => ({
           ...prev,
           [moduleId]: 'add'
@@ -182,6 +180,10 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
     if (confidence >= 80) return "text-green-600"
     if (confidence >= 60) return "text-yellow-600"
     return "text-red-600"
+  }
+
+  const getCreatedStatusColor = (created: boolean) => {
+    return created ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
   }
 
   if (!data) {
@@ -267,7 +269,12 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
                         <CardTitle className="text-lg">{module.name}</CardTitle>
                         <CardDescription className="mt-1">{module.category}</CardDescription>
                       </div>
-                      <Badge className={getComplexityColor(module.complexity)}>{module.complexity}</Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge className={getComplexityColor(module.complexity)}>{module.complexity}</Badge>
+                        <Badge className={getCreatedStatusColor(module.created)}>
+                          {module.created ? "To modify" : "Not Created"}
+                        </Badge>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -386,20 +393,20 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
                       <span>Total Estimated Cost:</span>
                       <span className="text-green-600">${(totalEstimatedCost / 1000).toFixed(0)}K</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
-                      <span>With adjustments:</span>
-                      <span>
+                    {/*<div className="flex items-center justify-between text-sm text-gray-600 mt-1">
+                  <span>With adjustments:</span>
+                  <span>
                     $
-                        {(
-                            (totalEstimatedCost *
-                                customFactors.urgencyMultiplier *
-                                customFactors.qualityMultiplier *
-                                (1 + customFactors.riskBuffer)) /
-                            1000
-                        ).toFixed(0)}
-                        K
+                    {(
+                      (totalEstimatedCost *
+                        customFactors.urgencyMultiplier *
+                        customFactors.qualityMultiplier *
+                        (1 + customFactors.riskBuffer)) /
+                      1000
+                    ).toFixed(0)}
+                    K
                   </span>
-                    </div>
+                </div>*/}
                   </div>
                 </div>
               </CardContent>
