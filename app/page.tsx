@@ -24,6 +24,7 @@ import { RecruitmentOptimizer } from "@/components/recruitment-optimizer"
 import { PatternAnalysis } from "@/components/patternAnalysis"
 import { RFPAnalysis } from "@/components/rfp_analysis"
 
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("rfp-analysis")
   const [analysisData, setAnalysisData] = useState(null)
@@ -46,6 +47,7 @@ export default function HomePage() {
     setShowToast(false)
   }
 
+
   const tabs = [
     { id: "rfp-analysis", label: "RFP Analysis", icon: Upload },
     { id: "reports", label: "RFP Response and Reports", icon: FileOutput },
@@ -57,6 +59,12 @@ export default function HomePage() {
     { id: "modules", label: "Module Library", icon: FileText },
     { id: "recommendations", label: "AI Recommendations", icon: AlertCircle },
   ]
+
+
+
+  const handleUploadRedirect = () => {
+    setActiveTab("rfp-analysis")
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -75,7 +83,7 @@ export default function HomePage() {
               </div>
             </div>
               <div className="flex items-center space-x-4">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleUploadRedirect}>
                   <DockIcon className="w-4 h-4 mr-2"/>
                   Upload RFP
                 </Button>
