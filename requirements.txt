@@ -31,6 +31,7 @@ PyPDF2>=3.0.0                             # Extraction texte PDF standard
 pypdf>=3.0.0                              # Alternative extraction PDF
 pdf2image>=1.17.0                         # Conversion PDF → images (VLM)
 Pillow>=9.0.0                             # Manipulation images
+pdfplumber>=0.7.0                         # Extraction PDF avancée
 
 # ============================================================================
 # MACHINE LEARNING & TRANSFORMERS
@@ -44,6 +45,7 @@ tokenizers>=0.13.0                        # Tokenisation rapide
 # ============================================================================
 together>=0.2.0                           # API Together.ai (LLM + VLM)
 requests>=2.28.0                          # Requêtes HTTP pour APIs
+google-generativeai>=0.3.0                # API Google Gemini
 
 # ============================================================================
 # TENSORFLOW ECOSYSTEM (VERSION STABLE)
@@ -60,6 +62,9 @@ tqdm>=4.64.0                              # Barres de progression
 scikit-learn>=1.1.0                       # Outils ML complémentaires
 matplotlib>=3.5.0                         # Visualisations (optionnel)
 seaborn>=0.11.0                           # Graphiques statistiques (optionnel)
+pandas>=1.5.0                             # Manipulation données
+streamlit>=1.22                           # Interface web
+reportlab>=4.0.0                          # Génération PDF
 
 # ============================================================================
 # GESTION FICHIERS & SYSTÈME
@@ -74,7 +79,7 @@ base64                                     # Encodage base64 (standard lib)
 # ============================================================================
 # SÉCURITÉ & ENVIRONNEMENT
 # ============================================================================
-python-dotenv>=0.19.0                     # Variables d'environnement (.env)
+python-dotenv>=0.21.0                     # Variables d'environnement (.env)
 cryptography>=38.0.0                      # Sécurisation clés API
 
 # ============================================================================
