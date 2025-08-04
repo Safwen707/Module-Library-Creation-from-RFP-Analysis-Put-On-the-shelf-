@@ -97,7 +97,7 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
           </Button>
           <Button>
             <Download className="w-4 h-4 mr-2" />
-            Download All
+            Download Response
           </Button>
         </div>
       </div>
@@ -286,16 +286,6 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
                               </ul>
                             </div>
                             <div>
-                              <h5 className="font-medium text-orange-600 mb-2">Functional Gaps</h5>
-                              <ul className="space-y-1">
-                                {data.gapAnalysis?.functional?.map((gap: string, index: number) => (
-                                  <li key={index} className="text-xs text-gray-600">
-                                    • {gap}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div>
                               <h5 className="font-medium text-blue-600 mb-2">Skill Gaps</h5>
                               <ul className="space-y-1">
                                 {data.gapAnalysis?.skills?.map((skill: string, index: number) => (
@@ -312,7 +302,7 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
 
                     {selectedReport === "resource_planning" && (
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Resource Planning</h3>
+                        <h3 className="text-lg font-semibold">Reqruitement Planning</h3>
                         <div className="space-y-3 text-sm">
                           <div>
                             <h4 className="font-medium mb-2">Skills Matrix:</h4>
@@ -363,7 +353,7 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
                           <h5 className="font-medium mb-2">Analysis Metrics</h5>
                           <div className="space-y-1">
                             <div>Total Requirements: {data.totalRequirements}</div>
-                            <div>Existing Modules: {data.existingModules}</div>
+                            <div>Ready-to-use Modules: {data.existingModules}</div>
                             <div>Modules to Modify: {data.modulesToModify}</div>
                             <div>New Modules Needed: {data.newModulesNeeded}</div>
                           </div>

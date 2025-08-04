@@ -44,7 +44,7 @@ export function AnalysisDashboard({ data }: AnalysisDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Existing Modules</p>
+                <p className="text-sm font-medium text-gray-600">Ready-to-use Modules</p>
                 <p className="text-2xl font-bold text-green-600">{data.existingModules}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
