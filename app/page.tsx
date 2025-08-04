@@ -29,7 +29,7 @@ export default function HomePage() {
 
   const handleAnalysisComplete = (data: any) => {
     setAnalysisData(data)
-    setActiveTab("dashboard")
+    setActiveTab("reports")
   }
 
   const tabs = [
