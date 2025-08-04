@@ -34,6 +34,7 @@ export default function HomePage() {
 
   const tabs = [
     { id: "rfp-analysis", label: "RFP Analysis", icon: Upload },
+    { id: "reports", label: "RFP Response and Reports", icon: FileOutput },
     { id: "dashboard", label: "Results Dashboard", icon: Brain },
     { id: "breakdown", label: "Module Breakdown", icon: FileText },
     { id: "modules", label: "Module Library", icon: FileText },
@@ -41,7 +42,6 @@ export default function HomePage() {
     { id: "pattern-analysis", label: "Pattern Analysis", icon: TrendingUp },
     { id: "recruitment", label: "Recruitment Optimizer", icon: Users },
     { id: "costs", label: "Cost Estimator", icon: Calculator },
-    { id: "reports", label: "Reports & Export", icon: FileOutput },
   ]
 
   return (
@@ -101,6 +101,7 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === "rfp-analysis" && <RFPAnalysis onAnalysisComplete={handleAnalysisComplete} />}
+        {activeTab === "reports" && <ReportsPanel data={analysisData} />}
         {activeTab === "dashboard" && <AnalysisDashboard data={analysisData} />}
         {activeTab === "breakdown" && <DetailedModuleBreakdown data={analysisData} />}
         {activeTab === "modules" && <ModuleLibrary />}
@@ -108,7 +109,6 @@ export default function HomePage() {
         {activeTab === "pattern-analysis" && <PatternAnalysis data={analysisData} />}
         {activeTab === "recruitment" && <RecruitmentOptimizer data={analysisData} />}
         {activeTab === "costs" && <ModuleCostEstimator data={analysisData} />}
-        {activeTab === "reports" && <ReportsPanel data={analysisData} />}
       </main>
     </div>
   )

@@ -97,7 +97,7 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
           </Button>
           <Button>
             <Download className="w-4 h-4 mr-2" />
-            Download All
+            Download Response
           </Button>
         </div>
       </div>
