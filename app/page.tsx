@@ -65,32 +65,37 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <DockIcon className="w-6 h-6 text-white" />
+              <div
+                  className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <DockIcon className="w-6 h-6 text-white"/>
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Aura</h1>
                 <p className="text-sm text-gray-500">Module Library Creation & Analysis Platform</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
-                <Users className="w-4 h-4 mr-2" />
-                Team
-              </Button>
-              <Button variant="outline" size="sm">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Analytics
-              </Button>
+              <div className="flex items-center space-x-4">
+                <Button variant="outline" size="sm">
+                  <DockIcon className="w-4 h-4 mr-2"/>
+                  Upload RFP
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Users className="w-4 h-4 mr-2"/>
+                  Team
+                </Button>
+                <Button variant="outline" size="sm">
+                  <TrendingUp className="w-4 h-4 mr-2"/>
+                  Analytics
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
       </header>
 
       {/* Navigation (with slide-in animation) */}
       {showNavbar && (
-        <nav className="bg-white border-b animate-slide-in">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="bg-white border-b animate-slide-in">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex space-x-8 overflow-x-auto">
               {tabs.map((tab) => {
                 const Icon = tab.icon
