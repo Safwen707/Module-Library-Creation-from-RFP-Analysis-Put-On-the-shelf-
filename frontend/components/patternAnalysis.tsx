@@ -48,7 +48,7 @@ interface BackendPattern {
 interface BackendPatternData {
   win_patterns: BackendPattern[]
   lose_patterns: BackendPattern[]
-  summary: {
+  summary?: {
     total_patterns: number
     domains_analyzed: number
     avg_win_rate: number
@@ -60,7 +60,18 @@ interface BackendPatternData {
 
 export function PatternAnalysis({ data }: PatternAnalysisProps) {
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [backendPatterns, setBackendPatterns] = useState<BackendPatternData | null>(null)
+  const [backendPatterns, setBackendPatterns] = useState<BackendPatternData>({
+    win_patterns: [],
+    lose_patterns: [],
+    summary: {
+      total_patterns: 0,
+      domains_analyzed: 0,
+      avg_win_rate: 0,
+      high_risk_patterns: 0
+    },
+    source: '',
+    methodology: ''
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -86,7 +97,18 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       }
 
       const result = await response.json()
-      setBackendPatterns(result)
+      setBackendPatterns(result || {
+        win_patterns: [],
+        lose_patterns: [],
+        summary: {
+          total_patterns: 0,
+          domains_analyzed: 0,
+          avg_win_rate: 0,
+          high_risk_patterns: 0
+        },
+        source: '',
+        methodology: ''
+      })
       setLastUpdated(new Date().toISOString())
 
     } catch (err) {
@@ -101,9 +123,10 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
     fetchPatternAnalysis()
   }
 
-  // Extract unique domains from backend patterns for filtering
   const getDomainsFromPatterns = (): string[] => {
-    if (!backendPatterns) return []
+    if (!backendPatterns || !backendPatterns.win_patterns || !backendPatterns.lose_patterns) {
+      return ['all']
+    }
 
     const domains = new Set<string>()
     backendPatterns.win_patterns.forEach(p => domains.add(p.domain))
@@ -114,13 +137,13 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
 
   const domains = getDomainsFromPatterns()
 
-  const filteredWinPatterns = backendPatterns?.win_patterns.filter(
-    (pattern) => selectedCategory === "all" || pattern.domain === selectedCategory
-  ) || []
+  const filteredWinPatterns = backendPatterns && backendPatterns.win_patterns
+    ? backendPatterns.win_patterns.filter((pattern) => selectedCategory === "all" || pattern.domain === selectedCategory)
+    : [];
 
-  const filteredLosePatterns = backendPatterns?.lose_patterns.filter(
-    (pattern) => selectedCategory === "all" || pattern.domain === selectedCategory
-  ) || []
+  const filteredLosePatterns = backendPatterns && backendPatterns.lose_patterns
+    ? backendPatterns.lose_patterns.filter((pattern) => selectedCategory === "all" || pattern.domain === selectedCategory)
+    : [];
 
   const getDomainColor = (domain: string) => {
     const colors = {
@@ -161,7 +184,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
     }
   }
 
-  const avgWinRate = backendPatterns?.summary.avg_win_rate || 0
+  const avgWinRate = backendPatterns && backendPatterns.summary ? backendPatterns.summary.avg_win_rate || 0 : 0;
 
   const BackendPatternCard = ({ pattern, isWin }: { pattern: BackendPattern; isWin: boolean }) => {
     return (
@@ -291,7 +314,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
       <div className="text-center py-12">
         <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">No Pattern Analysis Available</h3>
-        <p className="text-gray-500">Complete an RFP analysis to see historical patterns</p>
+        <p className="text-gray-600">Complete an RFP analysis to see historical patterns</p>
       </div>
     )
   }
@@ -336,12 +359,12 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
                   {data.source === "real_backend" ? "Real Vector Store Analysis" : "Limited Pattern Data"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {backendPatterns ? `${backendPatterns.methodology} - ${backendPatterns.summary.domains_analyzed} domains analyzed` : "Waiting for analysis"}
+                  {backendPatterns ? `${backendPatterns.methodology || ''} - ${backendPatterns.summary ? backendPatterns.summary.domains_analyzed : 0} domains analyzed` : "Waiting for analysis"}
                 </p>
               </div>
             </div>
             <div className="text-right text-sm text-gray-600">
-              <div>Patterns: {backendPatterns?.summary.total_patterns || 0}</div>
+              <div>Patterns: {backendPatterns?.summary?.total_patterns || 0}</div>
               <div>Updated: {lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : 'Never'}</div>
             </div>
           </div>
@@ -416,7 +439,7 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Domains</p>
-                  <p className="text-2xl font-bold text-purple-600">{backendPatterns.summary.domains_analyzed}</p>
+                  <p className="text-2xl font-bold text-purple-600">{backendPatterns.summary?.domains_analyzed || 0}</p>
                 </div>
                 <BarChart3 className="w-8 h-8 text-purple-600" />
               </div>
@@ -608,8 +631,8 @@ export function PatternAnalysis({ data }: PatternAnalysisProps) {
 
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-600">
-                Analysis based on {backendPatterns.summary.total_patterns} patterns across {backendPatterns.summary.domains_analyzed} domains
-                using {backendPatterns.methodology}
+                Analysis based on {backendPatterns.summary?.total_patterns || 0} patterns across {backendPatterns.summary?.domains_analyzed || 0} domains
+                using {backendPatterns.methodology || ''}
               </p>
             </div>
           </CardContent>

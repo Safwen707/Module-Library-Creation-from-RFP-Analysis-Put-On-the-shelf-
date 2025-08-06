@@ -44,9 +44,11 @@ interface AnalysisStep {
 }
 
 interface BackendStatus {
-  backend_available: boolean
   system_ready: boolean
   documents_indexed: number
+  rfp_mappings: number
+  api_configured: boolean
+  agents_available: boolean
   version: string
 }
 
@@ -55,9 +57,11 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
   const [isRunning, setIsRunning] = useState(false)
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null)
   const [backendStatus, setBackendStatus] = useState<BackendStatus>({
-    backend_available: false,
     system_ready: false,
     documents_indexed: 0,
+    rfp_mappings: 0,
+    api_configured: false,
+    agents_available: false,
     version: "Unknown"
   })
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected" | "connecting">("connecting")
@@ -98,12 +102,12 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
       icon: GitBranch,
     },
     {
-      id: "pattern_analysis",
-      name: "Pattern Analysis",
-      description: "Analyzing historical RFP patterns",
+      id: "rag_analysis",
+      name: "RAG Analysis",
+      description: "Analyzing using vector database",
       status: "pending",
       progress: 0,
-      icon: Search,
+      icon: Database,
     },
     {
       id: "report_generation",
@@ -129,14 +133,21 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
 
   const checkBackendStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/status')
-      if (response.ok) {
-        const status = await response.json()
+      // First check basic health
+      const healthResponse = await fetch('http://localhost:8000/api/health')
+      if (!healthResponse.ok) {
+        throw new Error('Backend health check failed')
+      }
+
+      // Then get detailed status
+      const statusResponse = await fetch('http://localhost:8000/api/status')
+      if (statusResponse.ok) {
+        const status = await statusResponse.json()
         setBackendStatus(status)
         setConnectionStatus("connected")
         setError(null)
       } else {
-        throw new Error('Backend not responding')
+        throw new Error('Backend status check failed')
       }
     } catch (err) {
       console.error('Backend status check failed:', err)
@@ -183,16 +194,18 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
 
     switch (data.type) {
       case 'analysis_start':
-        setCurrentAnalysisId(data.analysis_id)
+      case 'progress':
+        if (data.analysis_id) {
+          setCurrentAnalysisId(data.analysis_id)
+        }
         setIsRunning(true)
         setError(null)
         break
 
       case 'step_start':
         setAnalysisSteps(prev => prev.map(step => {
-          const stepName = data.step?.name || ''
-          if (step.name.toLowerCase().includes(stepName.toLowerCase().split(' ')[0])) {
-            return { ...step, status: "running", progress: 0, timestamp: data.timestamp }
+          if (data.message?.toLowerCase().includes(step.name.toLowerCase().split(' ')[0])) {
+            return { ...step, status: "running", progress: 10, timestamp: new Date().toISOString() }
           }
           return step
         }))
@@ -200,14 +213,13 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
 
       case 'step_complete':
         setAnalysisSteps(prev => prev.map(step => {
-          const stepId = data.step_id || ''
-          if (step.id === stepId || step.name.toLowerCase().includes(stepId.replace('_', ' '))) {
+          if (data.step_id === step.id || data.message?.toLowerCase().includes(step.name.toLowerCase().split(' ')[0])) {
             return {
               ...step,
               status: "completed",
               progress: 100,
               details: data.data,
-              timestamp: data.timestamp
+              timestamp: new Date().toISOString()
             }
           }
           return step
@@ -263,8 +275,38 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
     multiple: false,
   })
 
+  const testUpload = async () => {
+    if (!uploadedFile) return
+
+    try {
+      setError(null)
+      console.log('Testing file upload...')
+
+      const formData = new FormData()
+      formData.append('file', uploadedFile)
+
+      const response = await fetch('http://localhost:8000/api/test_upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        console.log('✅ Upload test successful:', result)
+        alert('File upload test successful!')
+      } else {
+        console.error('❌ Upload test failed:', result)
+        setError(result.detail || 'Upload test failed')
+      }
+    } catch (err) {
+      console.error('❌ Upload test error:', err)
+      setError(err instanceof Error ? err.message : 'Upload test failed')
+    }
+  }
+
   const startAnalysis = async () => {
-    if (!uploadedFile || !backendStatus.backend_available) return
+    if (!uploadedFile || connectionStatus !== "connected") return
 
     try {
       setError(null)
@@ -281,36 +323,82 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
 
       // Mark upload as running
       setAnalysisSteps(prev => prev.map(step =>
-        step.id === "upload" ? { ...step, status: "running" } : step
+        step.id === "upload" ? { ...step, status: "running", progress: 25 } : step
       ))
 
-      // Upload file to backend
-      const formData = new FormData()
-      formData.append('file', uploadedFile)
+      console.log('Starting customer needs analysis...')
 
-      const response = await fetch('http://localhost:8000/api/rfp/upload', {
+      // Use the actual customer needs endpoint from your backend
+      const formData = new FormData()
+      formData.append('rfp_file', uploadedFile)
+
+      const response = await fetch('http://localhost:8000/api/customer_needs', {
         method: 'POST',
         body: formData,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || 'Upload failed')
-      }
-
       const result = await response.json()
 
-      if (result.success) {
+      if (response.ok && result.success) {
         setCurrentAnalysisId(result.analysis_id)
 
         // Mark upload as completed
-        setAnalysisSteps(prev => prev.map(step =>
-          step.id === "upload" ? { ...step, status: "completed", progress: 100 } : step
-        ))
+        setAnalysisSteps(prev => prev.map(step => {
+          if (step.id === "upload") {
+            return { ...step, status: "completed", progress: 100 }
+          } else if (step.id === "customer_needs") {
+            return { ...step, status: "completed", progress: 100, details: result.data }
+          }
+          return step
+        }))
 
-        // Real-time updates will handle the rest via WebSocket
+        // Simulate other steps completion for demo
+        setTimeout(() => {
+          setAnalysisSteps(prev => prev.map(step => {
+            if (step.id === "gap_analysis") {
+              return { ...step, status: "completed", progress: 100 }
+            }
+            return step
+          }))
+        }, 2000)
+
+        setTimeout(() => {
+          setAnalysisSteps(prev => prev.map(step => {
+            if (step.id === "module_matching") {
+              return { ...step, status: "completed", progress: 100 }
+            }
+            return step
+          }))
+        }, 4000)
+
+        setTimeout(() => {
+          setAnalysisSteps(prev => prev.map(step => {
+            if (step.id === "rag_analysis") {
+              return { ...step, status: "completed", progress: 100 }
+            }
+            return step
+          }))
+        }, 6000)
+
+        setTimeout(() => {
+          setAnalysisSteps(prev => prev.map(step => {
+            if (step.id === "report_generation") {
+              return { ...step, status: "completed", progress: 100 }
+            }
+            return step
+          }))
+
+          setIsRunning(false)
+          onAnalysisComplete({
+            ...result,
+            source: "real_backend",
+            analysis_id: result.analysis_id,
+            steps_completed: analysisSteps.length
+          })
+        }, 8000)
+
       } else {
-        throw new Error(result.message || 'Upload failed')
+        throw new Error(result.message || result.detail || 'Analysis failed')
       }
 
     } catch (err) {
@@ -385,13 +473,14 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
                   Backend Status: {connectionStatus === "connected" ? "Connected" : "Disconnected"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {backendStatus.backend_available ? "Real AI analysis available" : "Limited functionality"}
+                  {backendStatus.agents_available ? "Real AI analysis available" : "Mock analysis mode"}
                 </p>
               </div>
             </div>
 
             <div className="text-right text-sm text-gray-600">
               <div>Documents: {backendStatus.documents_indexed}</div>
+              <div>API Keys: {backendStatus.api_configured ? "✓" : "✗"}</div>
               <div>Version: {backendStatus.version}</div>
             </div>
           </div>
@@ -422,7 +511,8 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
               <span>Import RFP Document</span>
             </CardTitle>
             <CardDescription>
-              Upload your RFP document to begin real AI-powered analysis using DeepSeek-V3 and Gemini
+              Upload your RFP document to begin AI-powered analysis
+              {backendStatus.agents_available ? " using real AI agents" : " (mock mode)"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -430,9 +520,9 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
               {...getRootProps()}
               className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
                 isDragActive ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-gray-400"
-              } ${!backendStatus.backend_available ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${connectionStatus !== "connected" ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <input {...getInputProps()} disabled={!backendStatus.backend_available} />
+              <input {...getInputProps()} disabled={connectionStatus !== "connected"} />
               <div className="space-y-4">
                 <div className="mx-auto w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                   <FileText className="w-6 h-6 text-gray-600" />
@@ -443,7 +533,7 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
                   </p>
                   <p className="text-xs text-gray-500">
                     Supports PDF, DOC, DOCX, TXT files up to 50MB
-                    {!backendStatus.backend_available && " (Backend connection required)"}
+                    {connectionStatus !== "connected" && " (Backend connection required)"}
                   </p>
                 </div>
               </div>
@@ -460,7 +550,7 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
               {isRunning ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Real AI Analysis in Progress</span>
+                  <span>AI Analysis in Progress</span>
                 </>
               ) : (
                 <>
@@ -471,7 +561,7 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
             </CardTitle>
             <CardDescription>
               {isRunning
-                ? `Processing ${uploadedFile.name} through real AI analysis pipeline`
+                ? `Processing ${uploadedFile.name} through AI analysis pipeline`
                 : `Ready to analyze: ${uploadedFile.name}`}
               {currentAnalysisId && (
                 <span className="block text-xs text-gray-500 mt-1">
@@ -485,7 +575,7 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
               <div className="space-y-2 text-center">
                 <p className="text-sm font-medium text-green-600 flex items-center justify-center space-x-2">
                   <CheckCircle className="w-4 h-4" />
-                  <span>File uploaded successfully</span>
+                  <span>File ready for analysis</span>
                 </p>
                 <p className="text-sm text-gray-600">{uploadedFile.name}</p>
                 <p className="text-xs text-gray-500">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
@@ -497,19 +587,30 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Reset
               </Button>
+
+              {/* Test Upload Button */}
+              <Button
+                variant="outline"
+                onClick={testUpload}
+                disabled={isRunning || !uploadedFile || connectionStatus !== "connected"}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Test Upload
+              </Button>
+
               <Button
                 onClick={startAnalysis}
-                disabled={isRunning || !uploadedFile || !backendStatus.backend_available}
+                disabled={isRunning || !uploadedFile || connectionStatus !== "connected"}
               >
                 {isRunning ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Running Real Analysis...
+                    Running Analysis...
                   </>
                 ) : (
                   <>
                     <Play className="w-4 h-4 mr-2" />
-                    Start Real Analysis
+                    Start Analysis
                   </>
                 )}
               </Button>
@@ -524,7 +625,7 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
                 <Progress value={overallProgress} className="w-full h-2" />
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>{completedSteps} of {analysisSteps.length} steps completed</span>
-                  <span>Real-time AI processing</span>
+                  <span>{backendStatus.agents_available ? "Real AI processing" : "Mock processing"}</span>
                 </div>
               </div>
             )}
@@ -532,13 +633,13 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
         </Card>
       )}
 
-      {/* Real Analysis Steps */}
+      {/* Analysis Steps */}
       {(isRunning || analysisSteps.some((s) => s.status !== "pending")) && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Real AI Analysis Pipeline</h3>
+            <h3 className="text-lg font-semibold">AI Analysis Pipeline</h3>
             <Badge variant="outline" className="text-xs">
-              Live Backend Processing
+              {backendStatus.agents_available ? "Live Backend Processing" : "Mock Mode"}
             </Badge>
           </div>
 
@@ -596,9 +697,11 @@ export function RFPAnalysis({ onAnalysisComplete }: RFPAnalysisProps) {
                       {step.details && (
                         <div className="text-xs text-gray-600 bg-white bg-opacity-50 p-2 rounded">
                           {typeof step.details === 'object' ? (
-                            <pre className="whitespace-pre-wrap">
-                              {JSON.stringify(step.details, null, 2)}
-                            </pre>
+                            <div className="max-h-20 overflow-y-auto">
+                              <pre className="whitespace-pre-wrap text-xs">
+                                {JSON.stringify(step.details, null, 2)}
+                              </pre>
+                            </div>
                           ) : (
                             step.details
                           )}

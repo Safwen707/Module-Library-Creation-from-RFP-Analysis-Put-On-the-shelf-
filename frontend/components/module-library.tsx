@@ -72,38 +72,89 @@ export function ModuleLibrary() {
   }, [])
 
   const fetchModuleData = async () => {
-    setIsLoading(true)
-    setError(null)
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      // Fetch module breakdown
-      const breakdownResponse = await fetch('http://localhost:8000/api/modules/breakdown')
+  try {
+    // Fetch both module breakdown and cost estimate
+    const [breakdownRes, costRes] = await Promise.all([
+      fetch('http://localhost:8000/api/modules/breakdown'),
+      fetch('http://localhost:8000/api/modules/cost-estimate')
+    ]);
 
-      if (!breakdownResponse.ok) {
-        const errorData = await breakdownResponse.json()
-        throw new Error(errorData.detail || 'Failed to fetch module breakdown')
-      }
-
-      const breakdown = await breakdownResponse.json()
-      setModuleData(breakdown)
-
-      // Combine all modules with proper status mapping
-      const combinedModules: BackendModule[] = [
-        ...breakdown.breakdown.ready.map((m: any) => ({ ...m, status: 'ready' })),
-        ...breakdown.breakdown.needs_update.map((m: any) => ({ ...m, status: 'needs_update' })),
-        ...breakdown.breakdown.to_create.map((m: any) => ({ ...m, status: 'to_create' }))
-      ]
-
-      setAllModules(combinedModules)
-      setLastUpdated(new Date().toISOString())
-
-    } catch (err) {
-      console.error('Failed to fetch module data:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load module data')
-    } finally {
-      setIsLoading(false)
+    if (!breakdownRes.ok || !costRes.ok) {
+      throw new Error('Failed to fetch module data');
     }
+
+    const [breakdownData, costData] = await Promise.all([
+      breakdownRes.json(),
+      costRes.json()
+    ]);
+
+    // Combine data from both endpoints
+    const combinedModules = [
+      ...breakdownData.modules.core_modules.map((m: any) => ({
+        id: m.id || `core_${m.name.replace(/\s+/g, '_')}`,
+        name: m.name,
+        description: m.capabilities?.join(', ') || 'No description',
+        status: 'ready',
+        complexity: m.complexity || 'Medium',
+        category: m.category,
+        technologies: m.technologies,
+        confidence: m.coverage ? m.coverage / 100 : 0.85,
+        source: "FastAPI Backend",
+        estimated_weeks: parseInt(m.estimated_effort?.split(' ')[0]) || 4
+      })),
+      ...breakdownData.modules.emerging_modules.map((m: any) => ({
+        id: m.id || `emerging_${m.name.replace(/\s+/g, '_')}`,
+        name: m.name,
+        description: m.capabilities?.join(', ') || 'No description',
+        status: 'needs_update',
+        complexity: m.complexity || 'High',
+        category: m.category,
+        technologies: m.technologies,
+        confidence: m.coverage ? m.coverage / 100 : 0.65,
+        source: "FastAPI Backend",
+        estimated_weeks: parseInt(m.estimated_effort?.split(' ')[0]) || 8,
+        update_reason: 'New technology integration required'
+      })),
+      ...costData.cost_estimates.module_development_costs.map((m: any) => ({
+        id: `cost_${m.module.replace(/\s+/g, '_')}`,
+        name: m.module,
+        description: `Development cost: ${m.development_cost}`,
+        status: m.status === 'in development' ? 'to_create' : 'ready',
+        complexity: m.complexity,
+        category: m.module.split(' ').slice(0, -1).join(' '),
+        source: "FastAPI Cost Analysis",
+        estimated_weeks: parseInt(m.timeline.split('-')[0].trim())
+      }))
+    ];
+
+    setModuleData({
+      breakdown: {
+        ready: combinedModules.filter(m => m.status === 'ready'),
+        needs_update: combinedModules.filter(m => m.status === 'needs_update'),
+        to_create: combinedModules.filter(m => m.status === 'to_create')
+      },
+      summary: {
+        ready_count: combinedModules.filter(m => m.status === 'ready').length,
+        update_count: combinedModules.filter(m => m.status === 'needs_update').length,
+        create_count: combinedModules.filter(m => m.status === 'to_create').length,
+        total: combinedModules.length,
+        completion_rate: breakdownData.statistics.average_maturity
+      },
+      source: "FastAPI Combined Analysis"
+    });
+
+    setAllModules(combinedModules);
+    setLastUpdated(new Date().toISOString());
+  } catch (err) {
+    console.error('Failed to fetch module data:', err);
+    setError(err instanceof Error ? err.message : 'Failed to load module data');
+  } finally {
+    setIsLoading(false);
   }
+};
 
   const refreshModules = () => {
     fetchModuleData()

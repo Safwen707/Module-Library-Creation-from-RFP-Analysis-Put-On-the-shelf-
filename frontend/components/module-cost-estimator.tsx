@@ -68,28 +68,61 @@ export function ModuleCostEstimator({ data }: ModuleCostEstimatorProps) {
   }, [data])
 
   const fetchCostEstimates = async () => {
-    setIsLoading(true)
-    setError(null)
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const response = await fetch('http://localhost:8000/api/modules/cost-estimate')
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || 'Failed to fetch cost estimates')
-      }
-
-      const result = await response.json()
-      setCostData(result)
-      setLastUpdated(new Date().toISOString())
-
-    } catch (err) {
-      console.error('Failed to fetch cost estimates:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load cost estimates')
-    } finally {
-      setIsLoading(false)
+  try {
+    const response = await fetch('http://localhost:8000/api/modules/cost-estimate');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch cost estimates');
     }
+
+    const backendData = await response.json();
+
+    // Transform the backend data
+    const costEstimates = {
+      estimates: [
+        ...backendData.cost_estimates.module_development_costs.map((m: any) => ({
+          id: `module_${m.module.replace(/\s+/g, '_').toLowerCase()}`,
+          name: m.module,
+          status: m.status === 'completed' ? 'ready' :
+                 m.status === 'beta' ? 'needs_update' : 'to_create',
+          estimated_cost: parseFloat(m.development_cost.replace(/[^0-9.]/g, '')) * 1000,
+          timeline_weeks: parseInt(m.timeline.split('-')[0].trim()),
+          complexity: m.complexity,
+          category: m.module.split(' ').pop(),
+          source: "FastAPI Backend"
+        })),
+        ...backendData.cost_estimates.third_party_licenses.common_tools.map((m: any, i: number) => ({
+          id: `license_${i}`,
+          name: m,
+          status: 'ready',
+          estimated_cost: 10000, // Default value
+          timeline_weeks: 1,
+          complexity: 'Low',
+          category: 'Licenses',
+          source: "FastAPI Backend"
+        }))
+      ],
+      summary: {
+        total_cost: parseFloat(backendData.roi_analysis.module_reuse_savings.replace(/[^0-9.]/g, '')) * 1000,
+        total_timeline_weeks: 12, // Default value
+        total_modules: backendData.cost_estimates.module_development_costs.length,
+        avg_cost_per_module: parseFloat(backendData.cost_estimates.resource_costs.hourly_rates.senior_developer.replace(/[^0-9.]/g, '')) * 1000
+      },
+      methodology: backendData.metadata?.cost_basis_date || "AI-powered cost estimation"
+    };
+
+    setCostData(costEstimates);
+    setLastUpdated(new Date().toISOString());
+  } catch (err) {
+    console.error('Failed to fetch cost estimates:', err);
+    setError(err instanceof Error ? err.message : 'Failed to load cost estimates');
+  } finally {
+    setIsLoading(false);
   }
+};
 
   const refreshCosts = () => {
     fetchCostEstimates()

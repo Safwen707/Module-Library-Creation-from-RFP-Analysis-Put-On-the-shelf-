@@ -75,58 +75,60 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
   }, [data])
 
   const fetchModuleBreakdown = async () => {
-    setIsLoading(true)
-    setError(null)
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const response = await fetch('http://localhost:8000/api/modules/breakdown')
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || 'Failed to fetch module breakdown')
-      }
-
-      const breakdown = await response.json()
-      setModuleData(breakdown)
-
-      // Combine all modules with enhanced data
-      const combinedModules: BackendModule[] = [
-        ...breakdown.breakdown.ready.map((m: any, idx: number) => ({
-          ...m,
-          id: m.id || `ready_${idx}`,
-          status: 'ready',
-          priority: determinePriority(m),
-          business_impact: generateBusinessImpact(m),
-          technical_details: generateTechnicalDetails(m)
-        })),
-        ...breakdown.breakdown.needs_update.map((m: any, idx: number) => ({
-          ...m,
-          id: m.id || `update_${idx}`,
-          status: 'needs_update',
-          priority: determinePriority(m),
-          business_impact: generateBusinessImpact(m),
-          technical_details: generateTechnicalDetails(m)
-        })),
-        ...breakdown.breakdown.to_create.map((m: any, idx: number) => ({
-          ...m,
-          id: m.id || `create_${idx}`,
-          status: 'to_create',
-          priority: determinePriority(m),
-          business_impact: generateBusinessImpact(m),
-          technical_details: generateTechnicalDetails(m)
-        }))
-      ]
-
-      setAllModules(combinedModules)
-      setLastUpdated(new Date().toISOString())
-
-    } catch (err) {
-      console.error('Failed to fetch module breakdown:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load module breakdown')
-    } finally {
-      setIsLoading(false)
+  try {
+    const response = await fetch('http://localhost:8000/api/modules/breakdown');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch module breakdown');
     }
+
+    const backendData = await response.json();
+
+    // Transform the backend data to match our frontend structure
+    const breakdown = {
+      breakdown: {
+        ready: backendData.modules.core_modules.map((m: any) => ({
+          ...m,
+          status: 'ready'
+        })),
+        needs_update: backendData.modules.emerging_modules.map((m: any) => ({
+          ...m,
+          status: 'needs_update'
+        })),
+        to_create: backendData.modules.third_party_integrations.map((m: any) => ({
+          ...m,
+          status: 'to_create',
+          name: m.name,
+          category: m.category
+        }))
+      },
+      summary: {
+        ready_count: backendData.modules.core_modules.length,
+        update_count: backendData.modules.emerging_modules.length,
+        create_count: backendData.modules.third_party_integrations.length,
+        total: backendData.statistics.total_modules,
+        completion_rate: backendData.statistics.average_maturity
+      },
+      source: "FastAPI Backend"
+    };
+
+    setModuleData(breakdown);
+    setAllModules([
+      ...breakdown.breakdown.ready,
+      ...breakdown.breakdown.needs_update,
+      ...breakdown.breakdown.to_create
+    ]);
+    setLastUpdated(new Date().toISOString());
+  } catch (err) {
+    console.error('Failed to fetch module breakdown:', err);
+    setError(err instanceof Error ? err.message : 'Failed to load module breakdown');
+  } finally {
+    setIsLoading(false);
   }
+};
 
   const refreshModules = () => {
     fetchModuleBreakdown()
@@ -204,7 +206,7 @@ export function DetailedModuleBreakdown({ data }: DetailedModuleBreakdownProps) 
     return ['all', ...Array.from(categories).sort()]
   }
 
-  const getPriorities = (): string[] => {
+  const getPriorities = (): (string | undefined)[] => {
     const priorities = new Set(allModules.map(m => m.priority).filter(Boolean))
     return ['all', ...Array.from(priorities).sort()]
   }
