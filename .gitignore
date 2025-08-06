@@ -1,0 +1,12 @@
+# Python virtual environment
+venv/
+
+# Node.js dependencies
+node_modules/
+
+# Optional: OS and editor junk
+.DS_Store
+*.log
+.env
+*.pyc
+__pycache__/

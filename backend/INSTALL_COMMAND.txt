@@ -1,0 +1,1 @@
+pip install langchain langchain-community langchain-huggingface sentence-transformers faiss-cpu numpy PyPDF2 pypdf pdf2image Pillow torch transformers tokenizers together requests tensorflow-cpu==2.19.0 tf-keras==2.19.0 tensorboard==2.19.0 ml-dtypes==0.5.1 tqdm scikit-learn matplotlib seaborn python-dotenv cryptography google-generativeai deepeval
