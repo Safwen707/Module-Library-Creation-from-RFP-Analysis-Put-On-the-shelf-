@@ -162,22 +162,46 @@ def initialize_real_system():
         llm = Together(api_key=TOGETHER_API_KEY)
 
         # Try to load existing vector store
+        # Try to load existing vector store, or rebuild if corrupted
         try:
+            from langchain_community.vectorstores import FAISS
+            from langchain_huggingface import HuggingFaceEmbeddings
+            from muRag_vlm import load_and_chunk_documents, create_faiss_index
+
+            embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+
             if Path("./faiss_index").exists():
-                from langchain_community.vectorstores import FAISS
-                from langchain_huggingface import HuggingFaceEmbeddings
-                embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-                vectorstore = FAISS.load_local(
-                    "./faiss_index",
-                    embedding_model,
-                    allow_dangerous_deserialization=True
-                )
-                print("✅ Existing vector store loaded")
-                real_data_storage["vectorstore"] = vectorstore
+                try:
+                    vectorstore = FAISS.load_local(
+                        "./faiss_index",
+                        embedding_model,
+                        allow_dangerous_deserialization=True
+                    )
+                    print("✅ Existing vector store loaded")
+                except Exception as load_error:
+                    print(f"⚠️ Corrupted FAISS index detected: {load_error}")
+                    print("🔄 Rebuilding vector store from documents...")
+
+                    # Rebuild from scratch
+                    chunks, registry, mapping = load_and_chunk_documents()
+                    vectorstore = create_faiss_index(chunks)
+
+                    # Save updated memory
+                    with open("./document_registry.json", "w", encoding="utf-8") as f:
+                        json.dump(registry, f, indent=2, ensure_ascii=False)
+                    with open("./rfp_response_mapping.json", "w", encoding="utf-8") as f:
+                        json.dump(mapping, f, indent=2, ensure_ascii=False)
+
+                    print("✅ Vector store rebuilt and saved")
+
             else:
                 print("📊 No existing vector store found - will create on first document processing")
+                vectorstore = None
+
+            real_data_storage["vectorstore"] = vectorstore
+
         except Exception as e:
-            print(f"⚠️ Could not load vector store: {e}")
+            print(f"⚠️ Could not initialize vector store: {e}")
 
         # Load existing document registry
         try:
