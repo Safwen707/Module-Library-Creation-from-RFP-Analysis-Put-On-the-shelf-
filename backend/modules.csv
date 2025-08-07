@@ -1,0 +1,9 @@
+name,description,technology,complexity,estimated_days,status
+Authentication Service,"Complete authentication and authorization service with JWT, OAuth2, RBAC, and SSO support","Node.js, Express, JWT, OAuth2, Redis",Medium,20,Available
+Product Catalog Module,"Advanced product catalog with variants, categories, pricing rules, and search capabilities","React, Elasticsearch, MongoDB",High,35,Available
+Order Management System,"Complete order processing with workflow, approvals, and status tracking","Java Spring Boot, PostgreSQL, RabbitMQ",High,40,In Development
+Payment Gateway Integration,Multi-gateway payment processing with B2B features like credit terms and invoicing,"Node.js, Stripe API, PayPal, Banking APIs",High,25,Available
+Analytics Dashboard,"Business intelligence dashboard with KPIs, reports, and data visualization","React, D3.js, Python, Pandas, PostgreSQL",Medium,30,Available
+Inventory Management,Multi-warehouse inventory tracking with automated reordering and forecasting,"Java Spring, PostgreSQL, Redis",Medium,25,Available
+Notification Service,"Real-time notification system supporting email, SMS, push notifications, and in-app alerts","Node.js, WebSocket, Firebase, SendGrid",Medium,15,Available
+API Gateway,"Centralized API gateway with rate limiting, caching, and security features","Kong, Docker, Redis",Medium,18,Available
